@@ -8,8 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Vercel Web Analytics Tracking -->
-  <script defer src="/_vercel/insights/script.js"></script>
   
   <style>
     :root {
@@ -702,6 +700,12 @@
         document.getElementById('successBox').style.display = 'block';
       }, 500);
     }
+  </script>
+
+  <!-- Vercel Web Analytics -->
+  <script type="module">
+    import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
+    inject();
   </script>
 
 </body>
