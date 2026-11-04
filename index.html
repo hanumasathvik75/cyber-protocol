@@ -74,13 +74,18 @@
       justify-content: center;
     }
 
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
     .nav-links a {
       color: var(--text-muted);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
-      margin-left: 24px;
     }
 
     .nav-links a:hover {
@@ -159,6 +164,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      border: none;
     }
 
     .btn-primary {
@@ -264,7 +270,7 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
-      color: #38bdf8;
+      font-size: 20px;
     }
 
     .card h3 {
@@ -328,7 +334,151 @@
       font-weight: bold;
     }
 
-    /* Footer */
+    /* Modal Styles */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 6, 14, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #0f1422;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.15);
+      border-radius: 20px;
+      max-width: 480px;
+      width: 100%;
+      padding: 32px;
+      position: relative;
+      text-align: left;
+      animation: modalIn 0.25s ease-out;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .modal h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #38bdf8;
+    }
+
+    .download-success {
+      display: none;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+
+    .download-success h4 {
+      color: #4ade80;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pairing-code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      color: #38bdf8;
+      display: inline-block;
+      margin: 6px 0 12px;
+      letter-spacing: 1.5px;
+    }
+
+    .steps-list {
+      font-size: 12.5px;
+      color: #94a3b8;
+      padding-left: 18px;
+      line-height: 1.6;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 40px 0;
@@ -356,7 +506,7 @@
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
-        <a href="https://github.com/hanumasathvik75/cyber-protocol" target="_blank">GitHub</a>
+        <button onclick="openModal()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">Get Protected</button>
       </div>
     </nav>
 
@@ -373,9 +523,9 @@
       </p>
 
       <div class="cta-group">
-        <a href="https://github.com/hanumasathvik75/cyber-protocol" class="btn btn-primary">
-          <span>Get Started Free</span> →
-        </a>
+        <button onclick="openModal()" class="btn btn-primary">
+          <span>Get Started Free (14-Day Trial)</span> →
+        </button>
         <a href="#features" class="btn btn-secondary">
           <span>Explore Architecture</span>
         </a>
@@ -465,9 +615,9 @@
           <li>Zero-Spyware / Full Privacy</li>
         </ul>
 
-        <a href="https://github.com/hanumasathvik75/cyber-protocol" class="btn btn-primary" style="width: 100%; justify-content: center;">
+        <button onclick="openModal()" class="btn btn-primary" style="width: 100%; justify-content: center;">
           Start 14-Day Free Trial
-        </a>
+        </button>
       </div>
     </section>
 
@@ -475,6 +625,82 @@
       <p>&copy; 2026 Cyber-Protocol (SafeGuard AI). Released under the MIT License.</p>
     </footer>
   </div>
+
+  <!-- Download & Onboarding Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOnBackdrop(event)">
+    <div class="modal" id="modalCard">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div class="modal-badge">14-DAY FREE PROTECTION</div>
+      <h3>Get Cyber-Protocol for Windows</h3>
+      <p>Enter your parent email to download the 1-click Windows installer and receive your family activation code.</p>
+
+      <form id="downloadForm" onsubmit="handleDownload(event)">
+        <div class="input-group">
+          <label for="emailInput">Parent Email Address</label>
+          <input type="email" id="emailInput" placeholder="name@example.com" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" id="downloadBtn">
+          <span>Download Windows Package (.zip)</span> ⬇️
+        </button>
+      </form>
+
+      <div class="download-success" id="successBox">
+        <h4>🎉 Download Started!</h4>
+        <p style="margin-bottom: 6px; font-size: 13px; color: #cbd5e1;">Your Family Pairing Code:</p>
+        <div class="pairing-code">CYBER-8842</div>
+        <ol class="steps-list">
+          <li>Extract the downloaded <code>cyber-protocol-setup.zip</code> file.</li>
+          <li>Open <code>scripts/</code> and right-click <strong>lock_incognito.bat</strong> ➔ <em>Run as administrator</em>.</li>
+          <li>Open Chrome, go to <code>chrome://extensions</code>, and Load Unpacked from <code>safeguard-extension/</code>.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalBackdrop').style.display = 'flex';
+      document.getElementById('emailInput').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').style.display = 'none';
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'modalBackdrop') {
+        closeModal();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    function handleDownload(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value;
+      if (!email) return;
+
+      const btn = document.getElementById('downloadBtn');
+      btn.textContent = 'Preparing Download...';
+      btn.disabled = true;
+
+      // Trigger real file download of the setup bundle
+      const link = document.createElement('a');
+      link.href = '/cyber-protocol-setup.zip';
+      link.download = 'cyber-protocol-setup.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => {
+        document.getElementById('downloadForm').style.display = 'none';
+        document.getElementById('successBox').style.display = 'block';
+      }, 500);
+    }
+  </script>
 
 </body>
 </html>
