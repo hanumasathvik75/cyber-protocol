@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 280px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 10px;
+    }
+    .shield-icon {
+      width: 24px;
+      height: 24px;
+      color: #38bdf8;
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+    .info-list {
+      font-size: 12px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 4px;
+    }
+    .val {
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+    .pin-note {
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    <div class="title">SafeGuard AI</div>
+  </div>
+
+  <div class="status-badge">
+    <div class="dot"></div>
+    <span>Parental Guard Active</span>
+  </div>
+
+  <div class="info-list">
+    <div class="info-item">
+      <span>Incognito Mode:</span>
+      <span class="val" style="color: #f87171;">Locked (GPO)</span>
+    </div>
+    <div class="info-item">
+      <span>AI Decision Agent:</span>
+      <span class="val" style="color: #4ade80;">Active</span>
+    </div>
+    <div class="info-item">
+      <span>Windows Alerts:</span>
+      <span class="val">Enabled</span>
+    </div>
+  </div>
+
+  <div class="pin-note">
+    🔒 Settings locked by Master PIN
+  </div>
+</body>
+</html>
