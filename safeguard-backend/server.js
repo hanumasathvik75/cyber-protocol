@@ -21,16 +21,17 @@ function sendWindowsToast(title, message) {
 // Send Real-Time Cloud Notification to Parent Mobile Portal & Android App
 async function notifyParentPortal(title, message, priority = 'high', tags = 'warning') {
   try {
+    const safeTitle = title.replace(/[^\x00-\x7F]/g, '').trim();
     await fetch('https://ntfy.sh/cyber_protocol_parent_alerts_7575/publish', {
       method: 'POST',
       headers: {
-        'Title': title,
+        'Title': safeTitle || 'Security Alert',
         'Priority': priority,
         'Tags': tags
       },
       body: message
     });
-    console.log(`[+] Parent Android Portal alert dispatched: "${title}"`);
+    console.log(`[+] Parent Android Portal alert dispatched: "${safeTitle}"`);
   } catch (err) {
     console.warn(`[!] Note on parent portal dispatch:`, err.message);
   }
