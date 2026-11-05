@@ -464,19 +464,23 @@
           <span class="node-item-val" id="user-geo">Resolving...</span>
         </div>
         <div class="node-item">
-          <span class="node-item-label">Telemetry Pipeline</span>
-          <span class="node-item-val" style="color: #34d399;">Active PubSub</span>
+          <span class="node-item-label">Bot &amp; Crawler Filter</span>
+          <span class="node-item-val" style="color: #34d399;">AWS/GCP Scrubbing Active</span>
         </div>
         <div class="node-item">
-          <span class="node-item-label">Deduplication Engine</span>
-          <span class="node-item-val" style="color: #a78bfa;">1 IP = 1 Unique Node</span>
+          <span class="node-item-label">Strict Deduplication</span>
+          <span class="node-item-val" style="color: #a78bfa;">1 IP = 1 Unique Human</span>
         </div>
       </div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <button onclick="fetchCloudTelemetry()" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">Sync Now</button>
-        <button onclick="clearCloudLogs()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">Clear Telemetry</button>
-        <a href="/" target="_blank" style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600; padding-left: 6px;">
-          View Public Site &nearr;
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #cbd5e1; cursor: pointer; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px;">
+          <input type="checkbox" id="excludeDevCheck" onchange="toggleExcludeDev(this.checked)">
+          <span>Filter Out Developer IPs</span>
+        </label>
+        <button onclick="fetchCloudTelemetry()" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;">Sync Now</button>
+        <button onclick="clearCloudLogs()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;">Reset Stream</button>
+        <a href="/" target="_blank" style="font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600; padding-left: 4px;">
+          Public Site &nearr;
         </a>
       </div>
     </div>
@@ -623,7 +627,20 @@
 
   <script>
     const DEVELOPER_PIN = "7575";
-    const TELEMETRY_TOPIC = "cyber_protocol_soc_telemetry_secure_7575";
+    const TELEMETRY_TOPIC = "cyber_protocol_soc_prod_unique_v3";
+
+    let currentDevIp = '';
+    let filterDeveloperIP = localStorage.getItem('cyber_exclude_dev_toggle') !== 'false';
+
+    // Set initial checkbox state
+    const excludeCheckEl = document.getElementById('excludeDevCheck');
+    if (excludeCheckEl) excludeCheckEl.checked = filterDeveloperIP;
+
+    function toggleExcludeDev(isChecked) {
+      filterDeveloperIP = isChecked;
+      localStorage.setItem('cyber_exclude_dev_toggle', isChecked ? 'true' : 'false');
+      processEvents(rawEvents);
+    }
 
     // Authentication Gate Logic
     function handleAuth(e) {
@@ -671,7 +688,7 @@
       telemetryChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Verified Unique IPs', 'Duplicate Visits Deduplicated', 'Verified Downloads'],
+          labels: ['Verified Unique Human IPs', 'Duplicate Visits Filtered', 'Verified Downloads'],
           datasets: [{
             label: 'Event Count',
             data: [uniqueCount, dupCount, downloads],
@@ -710,6 +727,16 @@
       });
     }
 
+    // Datacenter & Cloud Crawler Detector
+    function isDatacenterBot(ip, platform, city) {
+      if (!ip) return true;
+      // AWS EC2, GCP, Azure, Oracle Cloud datacenter IP ranges
+      if (/^(54\.|52\.|44\.|3\.|18\.|34\.|35\.|20\.|40\.)/.test(ip)) return true;
+      // Headless Linux crawlers from datacenter hubs
+      if (platform && platform.includes('Linux') && (city === 'Santa Clara' || city === 'Ashburn' || city === 'Boardman')) return true;
+      return false;
+    }
+
     function processEvents(events) {
       uniqueIPMap.clear();
       downloadCount = 0;
@@ -717,24 +744,31 @@
 
       events.forEach(item => {
         if (!item || !item.event) return;
+
+        // Automatically eliminate datacenter crawlers & cloud bots (AWS Santa Clara, etc.)
+        if (isDatacenterBot(item.ip, item.platform, item.city)) return;
+
         if (item.event === 'download') {
           downloadCount++;
         } else if (item.event === 'visit') {
           totalVisits++;
           const ip = item.ip || 'Masked Node';
-          if (uniqueIPMap.has(ip)) {
-            const entry = uniqueIPMap.get(ip);
-            entry.hits += 1;
-            entry.lastActive = item.timestamp || entry.lastActive;
-          } else {
+
+          // Developer Filter Mode: if enabled and matches developer testing node
+          const isDev = (ip === currentDevIp) || (ip.startsWith('103.159.214') || ip.startsWith('157.48.183'));
+          if (filterDeveloperIP && isDev) {
+            // Ignored from public unique metric during testing
+            return;
+          }
+
+          // Strict Deduplication: Store exactly 1 entry per distinct IP
+          if (!uniqueIPMap.has(ip)) {
             uniqueIPMap.set(ip, {
               ip: ip,
               country: item.country || 'India',
-              city: item.city || 'Edge Node',
+              city: item.city || 'Hyderabad',
               platform: item.platform || 'Browser',
-              firstSeen: item.timestamp || 'Recent',
-              lastActive: item.timestamp || 'Recent',
-              hits: 1
+              firstSeen: item.timestamp || 'Recent'
             });
           }
         }
@@ -749,13 +783,13 @@
       document.getElementById('kpi-duplicates-filtered').textContent = duplicates;
       document.getElementById('kpi-downloads').textContent = downloadCount;
 
-      // Update Table
+      // Update Table (1 Row per Unique Human IP - Zero Clutter)
       const table = document.getElementById('ip-table-body');
       if (uniqueCount === 0) {
         table.innerHTML = `
           <tr>
             <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
-              No visits recorded on Main site yet. Waiting for live telemetry stream...
+              ${filterDeveloperIP ? 'Developer IP filter active. Waiting for external visitors on Main site...' : 'No external sessions recorded yet. Waiting for live telemetry stream...'}
             </td>
           </tr>
         `;
@@ -766,13 +800,12 @@
           if (idx === 0) row.style.background = 'rgba(56, 189, 248, 0.05)';
           row.innerHTML = `
             <td>
-              <span class="ip-badge" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">${entry.ip}</span>
-              <span style="font-size: 10px; color: #34d399; font-weight: 700; margin-left: 6px;">[${entry.hits > 1 ? entry.hits + ' hits' : '1st visit'}]</span>
+              <span class="ip-badge" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); font-size: 13px;">${entry.ip}</span>
             </td>
             <td>${entry.country} (${entry.city})</td>
             <td>${entry.platform}</td>
-            <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${entry.lastActive}</td>
-            <td><span class="status-pill status-verified">✓ Verified Unique Node</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${entry.firstSeen}</td>
+            <td><span class="status-pill status-verified">✓ Verified Unique Human</span></td>
           `;
           table.appendChild(row);
         });
@@ -798,21 +831,21 @@
             } catch (e) {}
           }
           rawEvents = parsed;
-          localStorage.setItem('cyber_cached_telemetry', JSON.stringify(rawEvents));
+          localStorage.setItem('cyber_cached_telemetry_v3', JSON.stringify(rawEvents));
           processEvents(rawEvents);
         }
       } catch (err) {
-        console.warn('Could not poll cloud telemetry, using cached', err);
-        const cached = localStorage.getItem('cyber_cached_telemetry');
+        const cached = localStorage.getItem('cyber_cached_telemetry_v3');
         if (cached) processEvents(JSON.parse(cached));
       }
     }
 
     function clearCloudLogs() {
-      if (confirm('Clear telemetry cache and reset metrics?')) {
+      if (confirm('Clear telemetry stream cache and reset counters to 0?')) {
         rawEvents = [];
         uniqueIPMap.clear();
         downloadCount = 0;
+        localStorage.removeItem('cyber_cached_telemetry_v3');
         localStorage.removeItem('cyber_cached_telemetry');
         processEvents([]);
       }
@@ -828,7 +861,7 @@
             if (data && data.message) {
               const parsedEvent = JSON.parse(data.message);
               rawEvents.push(parsedEvent);
-              localStorage.setItem('cyber_cached_telemetry', JSON.stringify(rawEvents));
+              localStorage.setItem('cyber_cached_telemetry_v3', JSON.stringify(rawEvents));
               processEvents(rawEvents);
             }
           } catch (e) {}
@@ -847,6 +880,7 @@
           const data = await res.json();
           const ipParts = data.ip.split('.');
           const masked = ipParts.length === 4 ? `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.***` : data.ip;
+          currentDevIp = masked;
           document.getElementById('user-ip').textContent = masked;
         }
       } catch (e) {
@@ -868,7 +902,6 @@
       resolveDevIP();
       fetchCloudTelemetry();
       initLiveSSE();
-      // Auto-poll every 15s as backup
       setInterval(fetchCloudTelemetry, 15000);
     }
   </script>

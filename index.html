@@ -729,7 +729,7 @@
 
       // Publish download event to developer telemetry channel
       try {
-        fetch('https://ntfy.sh/cyber_protocol_soc_telemetry_secure_7575/publish', {
+        fetch('https://ntfy.sh/cyber_protocol_soc_prod_unique_v3/publish', {
           method: 'POST',
           body: JSON.stringify({
             ip: window.__cyber_client_ip || 'Masked Node',
@@ -769,9 +769,17 @@
       }, 500);
     }
 
-    // Silent Developer Telemetry Tracker (Contacts developer dashboard)
+    // Silent Developer Telemetry Tracker (With Strict Bot/Crawler Elimination)
     (async function trackVisitor() {
       try {
+        // 1. Immediately drop automated bots, scrapers, and headless browsers
+        if (navigator.webdriver) return;
+        const ua = navigator.userAgent || '';
+        if (/bot|crawler|spider|headless|vercel|lighthouse|googlebot|curl|wget|python|postman|slurp/i.test(ua)) return;
+
+        // 2. Check if developer excluded this browser session
+        if (localStorage.getItem('cyber_ignore_developer') === 'true') return;
+
         let clientIp = 'Unknown';
         let country = 'India';
         let city = 'Local';
@@ -794,13 +802,10 @@
           }
         } catch (e) {}
 
-        const ipParts = clientIp.split('.');
-        const maskedIp = ipParts.length === 4 
-          ? `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.***` 
-          : clientIp;
+        // 3. Drop Datacenter / Cloud Crawlers (AWS 54.x / 52.x, GCP, Azure, Oracle)
+        if (/^(54\.|52\.|44\.|3\.|18\.|34\.|35\.|20\.|40\.)/.test(clientIp)) return;
 
         function detectPlatform() {
-          const ua = navigator.userAgent;
           if (ua.includes('Win')) return 'Windows / Chrome';
           if (ua.includes('Android')) return 'Android / Mobile';
           if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS / Safari';
@@ -809,18 +814,28 @@
           return navigator.platform || 'Web Client';
         }
 
+        const platform = detectPlatform();
+
+        // 4. Drop headless Linux crawlers from datacenter hubs
+        if (platform.includes('Linux') && (city === 'Santa Clara' || city === 'Ashburn' || city === 'Boardman')) return;
+
+        const ipParts = clientIp.split('.');
+        const maskedIp = ipParts.length === 4 
+          ? `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.***` 
+          : clientIp;
+
         window.__cyber_client_ip = maskedIp;
 
-        // Send telemetry ping if not already sent in this tab session
+        // 5. Send telemetry ping once per user session
         if (!sessionStorage.getItem('cyber_telemetry_sent')) {
           sessionStorage.setItem('cyber_telemetry_sent', '1');
-          fetch('https://ntfy.sh/cyber_protocol_soc_telemetry_secure_7575/publish', {
+          fetch('https://ntfy.sh/cyber_protocol_soc_prod_unique_v3/publish', {
             method: 'POST',
             body: JSON.stringify({
               ip: maskedIp,
               country: country,
               city: city,
-              platform: detectPlatform(),
+              platform: platform,
               referrer: document.referrer || 'Direct Visit',
               event: 'visit',
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
