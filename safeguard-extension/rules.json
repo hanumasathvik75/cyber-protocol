@@ -4,9 +4,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*xhamster*",
@@ -18,9 +16,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*pornhub*",
@@ -32,9 +28,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*xvideos*",
@@ -46,9 +40,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*xnxx*",
@@ -60,9 +52,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*redtube*",
@@ -74,12 +64,154 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": {
-        "extensionPath": "/blocked.html"
-      }
+      "redirect": { "extensionPath": "/blocked.html" }
     },
     "condition": {
       "urlFilter": "*youporn*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 7,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*chaturbate*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 8,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*onlyfans*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 9,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*spankbang*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 10,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*tube8*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 11,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*stripchat*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 12,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*livejasmin*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 13,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*cam4*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 14,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*beeg*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 15,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*hqporner*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 16,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*motherless*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 17,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*eporner*",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 18,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/blocked.html" }
+    },
+    "condition": {
+      "urlFilter": "*daftsex*",
       "resourceTypes": ["main_frame"]
     }
   }

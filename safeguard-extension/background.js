@@ -10,7 +10,19 @@ const BLOCKED_PATTERNS = [
   'redtube',
   'youporn',
   'chaturbate',
-  'onlyfans'
+  'onlyfans',
+  'spankbang',
+  'tube8',
+  'stripchat',
+  'livejasmin',
+  'cam4',
+  'beeg',
+  'hqporner',
+  'eporner',
+  'motherless',
+  'daftsex',
+  'brazzers',
+  'heavy-r'
 ];
 
 function triggerAlert(domain, url) {

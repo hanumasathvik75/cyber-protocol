@@ -13,7 +13,19 @@
     'redtube',
     'youporn',
     'chaturbate',
-    'onlyfans'
+    'onlyfans',
+    'spankbang',
+    'tube8',
+    'stripchat',
+    'livejasmin',
+    'cam4',
+    'beeg',
+    'hqporner',
+    'eporner',
+    'motherless',
+    'daftsex',
+    'brazzers',
+    'heavy-r'
   ];
 
   const BYPASS_SEARCH_TERMS = [
@@ -23,7 +35,11 @@
     'disable safeguard',
     'how to turn off incognito block',
     'xhamster',
-    'pornhub'
+    'pornhub',
+    'xvideos',
+    'free vpn chrome',
+    'bypass school block',
+    'unblock adult sites'
   ];
 
   // 1. Immediate domain inspection

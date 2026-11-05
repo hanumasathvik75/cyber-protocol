@@ -5,17 +5,28 @@ const path = require('path');
 const PORT = 3000;
 const TOAST_SCRIPT = path.join(__dirname, 'toast.ps1');
 
-// Adult domains list (Tier 0 denylist)
+// Comprehensive adult networks list (Tier 0 denylist)
 const BLOCKED_DOMAINS = [
-  'xhamster.com',
   'xhamster',
-  'pornhub.com',
-  'xvideos.com',
-  'xnxx.com',
-  'redtube.com',
-  'youporn.com',
-  'chaturbate.com',
-  'onlyfans.com'
+  'pornhub',
+  'xvideos',
+  'xnxx',
+  'redtube',
+  'youporn',
+  'chaturbate',
+  'onlyfans',
+  'spankbang',
+  'tube8',
+  'stripchat',
+  'livejasmin',
+  'cam4',
+  'beeg',
+  'hqporner',
+  'eporner',
+  'motherless',
+  'daftsex',
+  'brazzers',
+  'heavy-r'
 ];
 
 // Suspicious / Bypass search terms
@@ -25,7 +36,11 @@ const BYPASS_TERMS = [
   'remove parental controls',
   'disable chrome extension',
   'how to open incognito',
+  'free vpn chrome',
+  'bypass school block',
+  'unblock adult sites',
   'xhamster',
+  'pornhub',
   'porn'
 ];
 
@@ -99,7 +114,7 @@ const server = http.createServer((req, res) => {
   // Health check
   if (req.method === 'GET' && req.url === '/api/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'active', agent: 'SafeGuard AI Decision Engine v1.0' }));
+    res.end(JSON.stringify({ status: 'active', agent: 'Cyber-Protocol Decision Engine v1.1' }));
     return;
   }
 
@@ -113,13 +128,13 @@ const server = http.createServer((req, res) => {
         const assessment = evaluateTraffic(payload);
 
         const timestamp = new Date().toLocaleTimeString();
-        console.log(`[${timestamp}] Incoming Request: ${payload.url || payload.domain || payload.searchQuery || 'unknown'}`);
+        console.log(`[${timestamp}] Request: ${payload.url || payload.domain || payload.searchQuery || 'unknown'}`);
         console.log(`           Verdict: ${assessment.verdict} | Category: ${assessment.category}`);
 
         if (assessment.verdict === 'BLOCKED') {
-          console.log(`🚨 [ALERT] Blocking navigation! Triggering Windows desktop toast...`);
+          console.log(`🚨 [ALERT] Triggering Windows desktop toast...`);
           sendWindowsToast(
-            '🚨 SafeGuard Parental Alert',
+            '🚨 Cyber-Protocol Alert',
             `Blocked access to ${assessment.matched || payload.domain || payload.url} on this PC.`
           );
         }
@@ -143,8 +158,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log('====================================================');
-  console.log('   🛡️  SafeGuard AI: Decision Agent Backend Active');
+  console.log('   🛡️  Cyber-Protocol: Decision Agent Backend Active');
   console.log(`   Listening at: http://localhost:${PORT}`);
-  console.log('   Waiting for traffic from Chrome Extension...');
   console.log('====================================================');
 });
