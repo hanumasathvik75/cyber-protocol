@@ -143,7 +143,7 @@ async function autonomousDecisionAgent(payload) {
         };
       }
 
-      if (vpnSim >= 0.48) {
+      if (vpnSim >= 0.42) {
         return {
           decision: 'FISHY_WARNING_10S',
           riskScore: parseFloat(vpnSim.toFixed(2)),
