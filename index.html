@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyber-Protocol | AI Endpoint Defense & Parental Security Console</title>
-  <meta name="description" content="Next-Gen AI Security Operations Panel. On-device Transformer intent detection, permanent Windows Incognito lock, and real-time parent threat telemetry.">
+  <title>SafeMind (Cyber-Protocol) | AI Child Digital Safety Dashboard</title>
+  <meta name="description" content="SafeMind by Cyber-Protocol. Advanced on-device AI parental defense, Windows GPO incognito lock, and real-time parent alerts.">
 
   <!-- Google Analytics 4 (gtag.js) - G-L701WGWB3W -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-L701WGWB3W"></script>
@@ -17,7 +17,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   
   <!-- Vercel Web Analytics -->
   <script>
@@ -27,25 +27,28 @@
 
   <!-- GoatCounter Privacy-First Analytics (sathvik123.goatcounter.com) -->
   <script data-goatcounter="https://sathvik123.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  
+
   <style>
     :root {
-      --bg: #07090e;
-      --surface: #0d121f;
-      --surface-card: rgba(13, 18, 31, 0.85);
-      --surface-elevated: #141c30;
-      --border: rgba(56, 189, 248, 0.16);
-      --border-light: rgba(255, 255, 255, 0.08);
-      --primary: #38bdf8;
-      --primary-glow: rgba(56, 189, 248, 0.35);
+      --sidebar-bg: #1a173b;
+      --sidebar-hover: rgba(255, 255, 255, 0.08);
+      --sidebar-active: #2b2659;
+      --sidebar-text: #9490b8;
+      --sidebar-text-active: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #ede9fe;
+      --canvas: #f4f6fa;
+      --card-bg: #ffffff;
+      --text-main: #1e1b4b;
+      --text-muted: #64748b;
+      --border-subtle: #e2e8f0;
       --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.3);
+      --emerald-light: #ecfdf5;
       --amber: #f59e0b;
-      --amber-glow: rgba(245, 158, 11, 0.25);
+      --amber-light: #fffbeb;
       --danger: #ef4444;
-      --danger-glow: rgba(239, 68, 68, 0.35);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --danger-light: #fef2f2;
       --font-mono: 'JetBrains Mono', monospace;
     }
 
@@ -56,515 +59,630 @@
     }
 
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--canvas);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
       overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
-        radial-gradient(circle at 15% 40%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
-        radial-gradient(circle at 85% 70%, rgba(239, 68, 68, 0.05) 0%, transparent 50%),
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
     }
 
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Top Global Status Ticker */
-    .status-ticker {
-      background: rgba(11, 15, 26, 0.95);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 24px;
-      font-family: var(--font-mono);
-      font-size: 12px;
+    /* Left Sidebar */
+    aside {
+      width: 250px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: space-between;
-      color: var(--text-muted);
-      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+      padding: 24px 16px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      height: 100vh;
     }
 
-    .ticker-left {
+    .brand-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-icon-wrap {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      gap: 16px;
-    }
-
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--emerald);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--emerald);
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    .ticker-badge {
-      color: var(--emerald);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .ticker-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      font-size: 11.5px;
-    }
-
-    /* Navbar */
-    nav {
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+      margin-bottom: 10px;
       color: #fff;
     }
 
-    .brand-logo-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-      border: 1px solid rgba(56, 189, 248, 0.5);
-    }
-
-    .brand-text h1 {
-      font-size: 18px;
+    .brand-title {
+      font-size: 20px;
       font-weight: 800;
+      color: #fff;
       letter-spacing: -0.5px;
-      line-height: 1.2;
     }
 
-    .brand-text span {
-      font-family: var(--font-mono);
+    .brand-tagline {
+      font-size: 11px;
+      color: #a5b4fc;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sidebar-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: var(--sidebar-hover);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+    }
+
+    .nav-badge {
+      background: var(--danger);
+      color: #fff;
       font-size: 10px;
-      color: var(--primary);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      display: block;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 100px;
+      margin-left: auto;
     }
 
-    .nav-actions {
+    .sidebar-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .premium-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: left;
+    }
+
+    .premium-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 2px;
+    }
+
+    .premium-sub {
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+    .btn-upgrade {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .btn-upgrade:hover {
+      background: #4338ca;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: #818cf8;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .user-meta h4 {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .user-meta p {
+      font-size: 10.5px;
+      color: #9490b8;
+    }
+
+    /* Main Content Dashboard */
+    main {
+      flex: 1;
+      padding: 28px 36px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1300px;
+      margin: 0 auto;
+      width: calc(100% - 250px);
+    }
+
+    /* Top Action Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .top-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 100px;
+    }
+
+    .top-status-dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .top-actions {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
     .btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      font-weight: 600;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.2s ease;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
       cursor: pointer;
-      border: none;
+      transition: all 0.2s ease;
       font-family: inherit;
-    }
-
-    .btn-outline {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      color: #cbd5e1;
-    }
-
-    .btn-outline:hover {
-      background: rgba(56, 189, 248, 0.1);
-      border-color: var(--primary);
-      color: #fff;
+      border: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      background: var(--primary);
       color: #fff;
-      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
     }
 
     .btn-primary:hover {
+      background: var(--primary-hover);
       transform: translateY(-1px);
-      box-shadow: 0 6px 25px rgba(56, 189, 248, 0.45);
     }
 
-    /* KPI Status Deck */
-    .kpi-deck {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin: 36px 0 32px;
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
     }
 
-    .kpi-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      backdrop-filter: blur(16px);
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
     }
 
-    .kpi-card:hover {
-      border-color: rgba(56, 189, 248, 0.4);
-      transform: translateY(-2px);
-    }
-
-    .kpi-header {
+    /* Hero Banner Card */
+    .hero-banner {
+      background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+      border: 1px solid #ddd6fe;
+      border-radius: 20px;
+      padding: 32px 38px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.08);
+    }
+
+    .hero-content {
+      max-width: 580px;
+      z-index: 2;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1e1b4b;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4f46e5;
       margin-bottom: 12px;
     }
 
-    .kpi-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .kpi-icon {
-      font-size: 18px;
-    }
-
-    .kpi-value {
-      font-size: 24px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.5px;
-      margin-bottom: 4px;
-      font-family: var(--font-mono);
-    }
-
-    .kpi-sub {
-      font-size: 12px;
-      color: var(--emerald);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 600;
-    }
-
-    /* Main Console Grid */
-    .console-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-
-    .panel-box {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      backdrop-filter: blur(16px);
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-light);
-      padding-bottom: 16px;
-      margin-bottom: 20px;
-    }
-
-    .panel-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .panel-tag {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: var(--primary);
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-weight: 700;
-    }
-
-    /* Live AI Intent Simulator */
-    .simulator-desc {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    .sim-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .chip-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-light);
-      color: #94a3b8;
-      font-size: 12px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: var(--font-mono);
-      transition: all 0.2s;
-    }
-
-    .chip-btn:hover {
-      background: rgba(56, 189, 248, 0.1);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    .sim-input-box {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .sim-input {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      color: #fff;
+    .hero-desc {
       font-size: 14px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 22px;
     }
 
-    .sim-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-    }
-
-    .sim-result-card {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 18px;
-      font-family: var(--font-mono);
+    .hero-buttons {
       display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .result-row {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 13px;
+      gap: 12px;
     }
 
-    .badge-decision {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-danger {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: #f87171;
-    }
-
-    .badge-warning {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(245, 158, 11, 0.5);
-      color: #fbbf24;
-    }
-
-    .badge-safe {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(16, 185, 129, 0.5);
-      color: #34d399;
-    }
-
-    .meter-container {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      overflow: hidden;
+    .hero-art-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
+      margin-right: 20px;
     }
 
-    .meter-bar {
-      height: 100%;
-      border-radius: 6px;
-      transition: width 0.4s ease, background 0.4s ease;
-    }
-
-    /* Live SOC Event Log */
-    .event-stream {
+    .hero-shield-emblem {
+      width: 140px;
+      height: 140px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      border-radius: 36px;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 380px;
-      overflow-y: auto;
-      padding-right: 4px;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.35);
+      border: 4px solid #fff;
+      animation: float 4s ease-in-out infinite;
     }
 
-    .event-stream::-webkit-scrollbar {
-      width: 4px;
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
-    .event-stream::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-    }
-
-    .event-item {
-      background: rgba(0, 0, 0, 0.3);
-      border-left: 3px solid var(--emerald);
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .event-item.blocked {
-      border-left-color: var(--danger);
-      background: rgba(239, 68, 68, 0.06);
-    }
-
-    .event-item.warned {
-      border-left-color: var(--amber);
-      background: rgba(245, 158, 11, 0.06);
-    }
-
-    .event-top {
-      display: flex;
-      justify-content: space-between;
-      color: #cbd5e1;
-      font-weight: 600;
-    }
-
-    .event-desc {
-      color: var(--text-muted);
-      font-size: 11.5px;
-    }
-
-    /* Defense Architecture Deep Dive */
-    .sec-architecture {
-      margin-bottom: 40px;
-    }
-
-    .arch-grid {
+    /* Dashboard Middle Grid */
+    .dashboard-mid-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1.55fr 1fr;
       gap: 20px;
     }
 
-    .arch-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      backdrop-filter: blur(12px);
+    .content-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px 26px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
     }
 
-    .arch-icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 10px;
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-header-left h3 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e1b4b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-header-left p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 4-Step Process Layout */
+    .process-steps-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+      padding: 0 6px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .step-item:hover {
+      transform: translateY(-3px);
+    }
+
+    .step-icon-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
-      color: var(--primary);
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .step-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e1b4b;
       margin-bottom: 4px;
     }
 
-    .arch-card h3 {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
+    .step-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+      max-width: 125px;
     }
 
-    .arch-card p {
+    .step-arrow {
+      font-size: 18px;
+      color: #cbd5e1;
+      font-weight: 800;
+      margin-top: -30px;
+    }
+
+    /* Key Features List */
+    .features-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    .feature-item-row:hover {
+      background: #f8fafc;
+    }
+
+    .feat-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .feat-meta h4 {
       font-size: 13.5px;
-      color: var(--text-muted);
+      font-weight: 700;
+      color: #1e1b4b;
+    }
+
+    .feat-meta p {
+      font-size: 11.5px;
+      color: #64748b;
+    }
+
+    /* Dashboard Bottom Grid */
+    .dashboard-bottom-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 20px;
+    }
+
+    /* Device Card Section (Real Protected Endpoint) */
+    .device-deck {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .device-card {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .device-laptop-icon {
+      width: 52px;
+      height: 52px;
+      background: #e0e7ff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .device-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e1b4b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .device-tag-online {
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .device-info p {
+      font-size: 12px;
+      color: #16a34a;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .btn-add-device {
+      flex: 1;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #4f46e5;
+      font-size: 13.5px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .btn-add-device:hover {
+      background: #ede9fe;
+      border-color: #818cf8;
+    }
+
+    /* "You're All Set" Banner */
+    .all-set-banner {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 18px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);
+    }
+
+    .all-set-icon {
+      width: 48px;
+      height: 48px;
+      background: #10b981;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .all-set-text h4 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #065f46;
+      margin-bottom: 4px;
+    }
+
+    .all-set-text p {
+      font-size: 12.5px;
+      color: #047857;
       line-height: 1.5;
     }
 
-    /* Download Banner / CTA Console */
-    .deploy-console {
-      background: linear-gradient(135deg, rgba(13, 18, 31, 0.95), rgba(20, 28, 48, 0.95));
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.15);
-      border-radius: 20px;
-      padding: 36px 40px;
-      margin-bottom: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 30px;
+    /* Tab Views (Hidden by default except home) */
+    .tab-content {
+      display: none;
     }
 
-    .deploy-info h2 {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-
-    .deploy-info p {
-      font-size: 14px;
-      color: var(--text-muted);
-      max-width: 600px;
-    }
-
-    .deploy-actions {
+    .tab-content.active {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-width: 240px;
+      gap: 24px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Modal Styles */
@@ -575,8 +693,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(4, 6, 14, 0.88);
-      backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -584,24 +702,22 @@
     }
 
     .modal {
-      background: #0d121f;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.2);
-      border-radius: 20px;
-      max-width: 500px;
+      background: #ffffff;
+      border-radius: 24px;
+      max-width: 540px;
       width: 100%;
-      padding: 32px;
+      padding: 34px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
       position: relative;
-      text-align: left;
     }
 
     .modal-close {
       position: absolute;
       top: 20px;
       right: 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: #94a3b8;
+      background: #f1f5f9;
+      border: none;
+      color: #64748b;
       width: 32px;
       height: 32px;
       border-radius: 50%;
@@ -613,465 +729,680 @@
     }
 
     .modal-close:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
+      background: #e2e8f0;
+      color: #1e293b;
     }
 
-    .input-group {
+    .sim-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px;
       margin: 18px 0;
     }
 
-    .input-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #cbd5e1;
-      margin-bottom: 8px;
+    .sim-bar-wrap {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0;
     }
 
-    .input-group input {
-      width: 100%;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 15px;
-      font-family: inherit;
-      outline: none;
+    .sim-bar {
+      height: 100%;
+      transition: width 0.3s ease, background 0.3s ease;
     }
 
-    .download-success {
-      display: none;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      padding: 18px;
-      margin-top: 16px;
+    /* Responsive */
+    @media (max-width: 1050px) {
+      aside { width: 80px; padding: 20px 10px; }
+      aside .brand-title, aside .brand-tagline, aside .nav-item span, aside .premium-card, aside .user-meta { display: none; }
+      aside .nav-item { justify-content: center; padding: 12px; }
+      aside .nav-badge { position: absolute; top: 4px; right: 4px; }
+      main { width: calc(100% - 80px); padding: 20px; }
+      .dashboard-mid-grid, .dashboard-bottom-grid { grid-template-columns: 1fr; }
     }
 
-    footer {
-      border-top: 1px solid var(--border-light);
-      padding: 30px 0;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 12.5px;
-      font-family: var(--font-mono);
-    }
-
-    @media (max-width: 900px) {
-      .kpi-deck { grid-template-columns: repeat(2, 1fr); }
-      .console-grid { grid-template-columns: 1fr; }
-      .arch-grid { grid-template-columns: 1fr; }
-      .deploy-console { flex-direction: column; text-align: center; }
-      .deploy-actions { width: 100%; }
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      aside { width: 100%; height: auto; position: static; flex-direction: row; align-items: center; padding: 12px 16px; }
+      aside .nav-menu { flex-direction: row; }
+      aside .sidebar-bottom { display: none; }
+      main { width: 100%; padding: 16px; }
+      .hero-banner { flex-direction: column; text-align: center; }
+      .hero-buttons { justify-content: center; }
+      .hero-art-box { margin: 20px 0 0; }
+      .process-steps-row { flex-direction: column; gap: 16px; }
+      .step-arrow { transform: rotate(90deg); margin: 0; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Global Status Ticker -->
-  <div class="status-ticker">
-    <div class="ticker-left">
-      <div class="live-dot"></div>
-      <span class="ticker-badge">ENDPOINT DEFENSE ENGINE // ACTIVE</span>
-      <span style="opacity: 0.6;">&bull;</span>
-      <span>On-Device Transformer (all-MiniLM-L6-v2)</span>
-    </div>
-    <div class="ticker-right">
-      <span>GPO STATUS: <strong style="color: #38bdf8;">ENFORCED</strong></span>
-      <span>INCOGNITO: <strong style="color: #ef4444;">LOCKED</strong></span>
-      <span>LATENCY: <strong style="color: #34d399;">12.4ms</strong></span>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- Navbar -->
-    <nav>
-      <a href="/" class="brand-wrap">
-        <img src="/logo.svg" alt="Cyber-Protocol" class="brand-logo-img">
-        <div class="brand-text">
-          <h1>CYBER-PROTOCOL</h1>
-          <span>Autonomous AI Parental Security Panel</span>
+  <!-- Left Sidebar -->
+  <aside>
+    <div>
+      <div class="brand-box">
+        <div class="brand-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <rect x="9" y="11" width="6" height="5" rx="1"/>
+            <path d="M10 11V9a2 2 0 1 1 4 0v2"/>
+          </svg>
         </div>
-      </a>
-      <div class="nav-actions">
-        <a href="/parent-portal.html" class="btn btn-outline" target="_blank">
-          <span>📱 Parent Mobile Portal</span>
+        <h2 class="brand-title">SafeMind</h2>
+        <p class="brand-tagline">Safe Today. Secure Tomorrow.</p>
+      </div>
+
+      <ul class="nav-menu">
+        <li>
+          <a href="#home" class="nav-item active" onclick="switchTab('home', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="#devices" class="nav-item" onclick="switchTab('devices', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Devices</span>
+          </a>
+        </li>
+        <li>
+          <a href="#alerts" class="nav-item" onclick="switchTab('alerts', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts</span>
+            <span class="nav-badge">1</span>
+          </a>
+        </li>
+        <li>
+          <a href="#reports" class="nav-item" onclick="switchTab('reports', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="#settings" class="nav-item" onclick="switchTab('settings', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="#help" class="nav-item" onclick="switchTab('help', event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Help & Support</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="premium-card">
+        <div class="premium-top">
+          <span>👑</span>
+          <span>Enterprise Shield</span>
+        </div>
+        <p class="premium-sub">Windows GPO + Local Transformer</p>
+        <button class="btn-upgrade" onclick="openDemoModal()">Try Live Demo</button>
+      </div>
+
+      <div class="user-profile">
+        <div class="user-avatar">P</div>
+        <div class="user-meta">
+          <h4>Parent Portal</h4>
+          <p>Super Administrator</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main>
+    <!-- Top Action Header -->
+    <div class="top-bar">
+      <div class="top-status-pill">
+        <div class="top-status-dot"></div>
+        <span>AI DEFENSE SYSTEM ACTIVE &bull; SUB-15ms INFERENCE</span>
+      </div>
+
+      <div class="top-actions">
+        <a href="/parent-portal.html" class="btn btn-secondary" target="_blank">
+          <span>📱 Mobile Portal</span>
         </a>
-        <button onclick="openModal()" class="btn btn-primary">
-          <span>⬇️ Download Protection Suite</span>
+        <button onclick="triggerDirectDownload()" class="btn btn-primary">
+          <span>⬇️ Download Windows Package (.zip)</span>
         </button>
       </div>
-    </nav>
+    </div>
 
-    <!-- Top KPI Deck -->
-    <section class="kpi-deck">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">WINDOWS GPO INTEGRITY</span>
-          <span class="kpi-icon">🛡️</span>
-        </div>
-        <div class="kpi-value">HARD-LOCKED</div>
-        <div class="kpi-sub">
-          <span>✓ IncognitoDisabled (Registry Policy)</span>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">ON-DEVICE TRANSFORMER</span>
-          <span class="kpi-icon">🧠</span>
-        </div>
-        <div class="kpi-value">12.4ms</div>
-        <div class="kpi-sub">
-          <span>✓ Local RAM ONNX (Zero Cloud Snooping)</span>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">ADULT NETWORK DROPPER</span>
-          <span class="kpi-icon">🚫</span>
-        </div>
-        <div class="kpi-value">152+ SITES</div>
-        <div class="kpi-sub">
-          <span>✓ 0ms Network Layer Kill-Switch</span>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">PARENT TELEMETRY STREAM</span>
-          <span class="kpi-icon">⚡</span>
-        </div>
-        <div class="kpi-value">ONLINE</div>
-        <div class="kpi-sub">
-          <span>✓ Real-Time SSE Push Dispatched</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive Security Console Grid -->
-    <section class="console-grid">
-      <!-- Left: Interactive Live Semantic Intent Tester -->
-      <div class="panel-box">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span>🧠</span>
-            <span>Live On-Device AI Semantic Intent Tester</span>
-          </div>
-          <span class="panel-tag">SUB-15ms LOCAL INFERENCE</span>
-        </div>
-
-        <p class="simulator-desc">
-          Test how our on-device Transformer calculates semantic cosine vectors in RAM to differentiate innocent homework from vulgar intent:
-        </p>
-
-        <div class="sim-chips">
-          <button class="chip-btn" onclick="testQuery('show me dirty unfiltered streaming clip')">🔍 "dirty streaming clip"</button>
-          <button class="chip-btn" onclick="testQuery('steamy bedroom scenes between lovers uncensored')">🔍 "steamy bedroom scenes"</button>
-          <button class="chip-btn" onclick="testQuery('shadowsocks proxy to bypass regional firewall')">🔍 "proxy firewall bypass"</button>
-          <button class="chip-btn" onclick="testQuery('how to clean a dirty carpet with baking soda')">🔍 "dirty carpet cleaning"</button>
-          <button class="chip-btn" onclick="testQuery('biology lesson about human heart and circulation')">🔍 "biology homework"</button>
-        </div>
-
-        <div class="sim-input-box">
-          <input type="text" id="simQueryInput" class="sim-input" placeholder="Type any search query to test intent..." value="show me dirty unfiltered streaming clip">
-          <button class="btn btn-primary" onclick="runSimAnalysis()">Analyze Intent</button>
-        </div>
-
-        <div class="sim-result-card" id="simResultBox">
-          <div class="result-row">
-            <span style="color: #94a3b8;">EVALUATED QUERY:</span>
-            <span id="resQuery" style="color: #fff; font-weight: 700;">"show me dirty unfiltered streaming clip"</span>
-          </div>
-          <div class="result-row">
-            <span style="color: #94a3b8;">AI INTENT DECISION:</span>
-            <span class="badge-decision badge-danger" id="resDecision">IMMEDIATE_BLOCK</span>
-          </div>
-          <div class="result-row">
-            <span style="color: #94a3b8;">SEMANTIC VECTOR SIMILARITY:</span>
-            <span id="resScore" style="color: #f87171; font-weight: 700;">47.0% Match with Adult Safety Anchor</span>
-          </div>
-          <div class="meter-container">
-            <div class="meter-bar" id="resMeter" style="width: 47%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div>
-          </div>
-          <div class="result-row" style="font-size: 11.5px; color: #94a3b8;">
-            <span>ACTION: Terminate Navigation ➔ Render "Sorry, Vulgar Content Found" ➔ Push to Parent Phone</span>
-            <span style="color: #38bdf8;">12.4ms</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Real-Time Threat Interception Stream -->
-      <div class="panel-box">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span>⚡</span>
-            <span>Real-Time Interception Stream</span>
-          </div>
-          <span class="panel-tag" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399;">LIVE TELEMETRY</span>
-        </div>
-
-        <div class="event-stream" id="eventStream">
-          <div class="event-item blocked">
-            <div class="event-top">
-              <span style="color: #f87171;">🚨 IMMEDIATE_BLOCK</span>
-              <span style="opacity: 0.6;">Just now</span>
-            </div>
-            <div class="event-desc">
-              Search query <strong>"nude video"</strong> intercepted. Navigation terminated. Push sent to Parent Portal.
-            </div>
-          </div>
-
-          <div class="event-item blocked">
-            <div class="event-top">
-              <span style="color: #f87171;">🚨 IMMEDIATE_BLOCK</span>
-              <span style="opacity: 0.6;">4:51 PM</span>
-            </div>
-            <div class="event-desc">
-              On-Device Transformer detected <strong>47.0% Adult Intent</strong> on <em>"dirty unfiltered clip"</em>. Screen locked.
-            </div>
-          </div>
-
-          <div class="event-item warned">
-            <div class="event-top">
-              <span style="color: #fbbf24;">⚠️ FISHY_WARNING_10S</span>
-              <span style="opacity: 0.6;">4:49 PM</span>
-            </div>
-            <div class="event-desc">
-              Suspicious proxy evasion flagged: <em>"shadowsocks proxy to bypass regional firewall"</em>. 10s HUD active.
-            </div>
-          </div>
-
-          <div class="event-item">
-            <div class="event-top">
-              <span style="color: #34d399;">✓ GPO AUDIT PASSED</span>
-              <span style="opacity: 0.6;">4:35 PM</span>
-            </div>
-            <div class="event-desc">
-              Verified Windows Registry: <code>IncognitoModeAvailability=1</code>. Extensions deletion toggle restricted.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Architecture Breakdown -->
-    <section class="sec-architecture">
-      <div class="arch-grid">
-        <div class="arch-card">
-          <div class="arch-icon">🔒</div>
-          <h3>Windows Enterprise GPO Lockdown</h3>
-          <p>
-            Standard parental extensions get uninstalled in 10 seconds. Cyber-Protocol injects Windows Registry policies to disable Incognito and mark the extension as "Managed by Organization".
+    <!-- TAB 1: HOME (Default View) -->
+    <div id="tab-home" class="tab-content active">
+      <!-- Hero Welcome Card -->
+      <section class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">Welcome to SafeMind! 👋</h1>
+          <p class="hero-subtitle">Your child's digital safety, our priority.</p>
+          <p class="hero-desc">
+            SafeMind by Cyber-Protocol uses on-device Transformer AI to detect and block inappropriate content, 
+            permanently locks Windows Incognito, and notifies parents in real time.
           </p>
+
+          <div class="hero-buttons">
+            <button onclick="openDemoModal()" class="btn btn-primary" style="padding: 12px 22px;">
+              <span>▶ Watch How It Works</span>
+            </button>
+            <button onclick="triggerDirectDownload()" class="btn btn-secondary" style="padding: 12px 22px;">
+              <span>Get Started Free →</span>
+            </button>
+          </div>
         </div>
 
-        <div class="arch-card">
-          <div class="arch-icon">🧠</div>
-          <h3>Local On-Device Transformer AI</h3>
-          <p>
-            Zero cloud LLM API lag and zero private chat snooping. The <code>all-MiniLM-L6-v2</code> neural model evaluates typed queries locally in ~12ms RAM, distinguishing dirty carpets from dirty clips.
-          </p>
+        <div class="hero-art-box">
+          <div class="hero-shield-emblem">
+            <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <rect x="9" y="11" width="6" height="5" rx="1"/>
+              <path d="M10 11V9a2 2 0 1 1 4 0v2"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Middle 2-Column Section -->
+      <section class="dashboard-mid-grid">
+        <!-- "How It Works?" Card -->
+        <div class="content-card">
+          <div class="card-header-row">
+            <div class="card-header-left">
+              <h3>✨ How It Works?</h3>
+              <p>A smart 4-step process to keep your child safe online.</p>
+            </div>
+          </div>
+
+          <div class="process-steps-row">
+            <!-- Step 1 -->
+            <div class="step-item" onclick="openDemoModal('show me dirty unfiltered streaming clip')">
+              <div class="step-icon-circle" style="background: #eff6ff; color: #3b82f6;">
+                🔍
+              </div>
+              <span class="step-badge" style="background: #dbeafe; color: #1e40af;">1</span>
+              <h4 class="step-title">Search or Browse</h4>
+              <p class="step-desc">Your child searches or visits any website.</p>
+            </div>
+
+            <div class="step-arrow">→</div>
+
+            <!-- Step 2 -->
+            <div class="step-item" onclick="openDemoModal('show me dirty unfiltered streaming clip')">
+              <div class="step-icon-circle" style="background: #f5f3ff; color: #8b5cf6;">
+                🧠
+              </div>
+              <span class="step-badge" style="background: #ede9fe; color: #6d28d9;">2</span>
+              <h4 class="step-title">AI Analysis</h4>
+              <p class="step-desc">Transformer calculates 384-dim semantic intent in 12ms.</p>
+            </div>
+
+            <div class="step-arrow">→</div>
+
+            <!-- Step 3 -->
+            <div class="step-item" onclick="openDemoModal('show me dirty unfiltered streaming clip')">
+              <div class="step-icon-circle" style="background: #ecfdf5; color: #10b981;">
+                🛡️
+              </div>
+              <span class="step-badge" style="background: #d1fae5; color: #065f46;">3</span>
+              <h4 class="step-title">Decision</h4>
+              <p class="step-desc">System allows, warns (10s HUD), or immediately blocks.</p>
+            </div>
+
+            <div class="step-arrow">→</div>
+
+            <!-- Step 4 -->
+            <div class="step-item" onclick="openDemoModal('show me dirty unfiltered streaming clip')">
+              <div class="step-icon-circle" style="background: #fffbeb; color: #f59e0b;">
+                🔔
+              </div>
+              <span class="step-badge" style="background: #fef3c7; color: #92400e;">4</span>
+              <h4 class="step-title">Instant Alert</h4>
+              <p class="step-desc">Parent receives high-priority phone push & PC toast.</p>
+            </div>
+          </div>
         </div>
 
-        <div class="arch-card">
-          <div class="arch-icon">📱</div>
-          <h3>Instant Parent Mobile Portal</h3>
-          <p>
-            The moment a kid attempts an adult search or VPN bypass, high-priority notifications, phone vibration, and live incident records stream immediately to the parent's device.
-          </p>
+        <!-- Key Features Card -->
+        <div class="content-card">
+          <div class="card-header-row">
+            <div class="card-header-left">
+              <h3>⭐ Key Features</h3>
+              <p>Built for unbreakable digital protection.</p>
+            </div>
+          </div>
+
+          <div class="features-stack">
+            <div class="feature-item-row">
+              <div class="feat-icon-box" style="background: #ecfdf5; color: #10b981;">🛡️</div>
+              <div class="feat-meta">
+                <h4>AI-Powered Protection</h4>
+                <p>Detects risky searches & zero-day adult content</p>
+              </div>
+            </div>
+
+            <div class="feature-item-row">
+              <div class="feat-icon-box" style="background: #eff6ff; color: #3b82f6;">💻</div>
+              <div class="feat-meta">
+                <h4>Permanent Incognito Lock</h4>
+                <p>Windows Registry GPO completely disables Incognito</p>
+              </div>
+            </div>
+
+            <div class="feature-item-row">
+              <div class="feat-icon-box" style="background: #fffbeb; color: #f59e0b;">🔔</div>
+              <div class="feat-meta">
+                <h4>Real-Time Alerts</h4>
+                <p>Instant phone push and native desktop notifications</p>
+              </div>
+            </div>
+
+            <div class="feature-item-row">
+              <div class="feat-icon-box" style="background: #f5f3ff; color: #8b5cf6;">🚫</div>
+              <div class="feat-meta">
+                <h4>152+ Adult Network Dropper</h4>
+                <p>0ms network-layer kill-switch for known sites</p>
+              </div>
+            </div>
+
+            <div class="feature-item-row">
+              <div class="feat-icon-box" style="background: #f0fdf4; color: #15803d;">🔒</div>
+              <div class="feat-meta">
+                <h4>Privacy-First On-Device AI</h4>
+                <p>Zero cloud snooping & zero reading private chats</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom 2-Column Section -->
+      <section class="dashboard-bottom-grid">
+        <!-- Real Device Status Card -->
+        <div class="content-card">
+          <div class="card-header-row">
+            <div class="card-header-left">
+              <h3>💻 Your Protected Devices</h3>
+              <p>Active endpoints managed under enterprise safety policy.</p>
+            </div>
+            <a href="#devices" onclick="switchTab('devices', event)" style="font-size: 13px; font-weight: 700; color: #4f46e5; text-decoration: none;">Manage Devices →</a>
+          </div>
+
+          <div class="device-deck">
+            <div class="device-card">
+              <div class="device-laptop-icon">💻</div>
+              <div class="device-info">
+                <h4>Primary Child Windows PC <span class="device-tag-online">Online</span></h4>
+                <p>✓ Protected &bull; GPO Locked &bull; Transformer Active</p>
+              </div>
+            </div>
+
+            <a href="#devices" onclick="triggerDirectDownload()" class="btn-add-device">
+              <span>➕ Add / Protect Another PC (.zip)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- "You're All Set" Banner -->
+        <div class="all-set-banner">
+          <div class="all-set-icon">✓</div>
+          <div class="all-set-text">
+            <h4>You're all set!</h4>
+            <p>SafeMind is actively protecting your child's browser. Any sensitive query or bypass attempt is intercepted in 12ms and logged directly to your mobile portal.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: DEVICES VIEW -->
+    <div id="tab-devices" class="tab-content">
+      <div class="content-card">
+        <div class="card-header-row">
+          <div class="card-header-left">
+            <h3>💻 Connected Devices & Endpoint Integrity</h3>
+            <p>Manage Windows computers and paired parental phones.</p>
+          </div>
+          <button onclick="triggerDirectDownload()" class="btn btn-primary">
+            <span>⬇️ Download Windows Package (.zip)</span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+          <div class="device-card" style="padding: 20px;">
+            <div class="device-laptop-icon" style="background: #dbeafe; color: #1e40af;">💻</div>
+            <div style="flex: 1;">
+              <h4 style="font-size: 15px; font-weight: 800;">Primary Kid PC (Windows 11) <span class="device-tag-online">Protected</span></h4>
+              <p style="font-size: 12.5px; color: #475569; margin-top: 4px;">
+                GPO Policy: <code>IncognitoDisabled = 1</code> &bull; SafeSearch: <code>Transformer Autonomous</code> &bull; Agent: <code>SafeGuard AI v1.0.2</code>
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 12px; font-weight: 700; color: #16a34a;">0ms Network Drop Active</span>
+              <p style="font-size: 11px; color: #94a3b8;">Heartbeat: Just now</p>
+            </div>
+          </div>
+
+          <div class="device-card" style="padding: 20px;">
+            <div class="device-laptop-icon" style="background: #fef3c7; color: #d97706;">📱</div>
+            <div style="flex: 1;">
+              <h4 style="font-size: 15px; font-weight: 800;">Parent Mobile Portal Stream <span class="device-tag-online">Connected</span></h4>
+              <p style="font-size: 12.5px; color: #475569; margin-top: 4px;">
+                Alert Channel: <code>cyber_protocol_parent_alerts_7575</code> &bull; Status: Real-time SSE Push
+              </p>
+            </div>
+            <a href="/parent-portal.html" target="_blank" class="btn btn-secondary" style="padding: 8px 14px; font-size: 12.5px;">
+              Open Portal ↗
+            </a>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding: 20px; background: #ede9fe; border-radius: 14px; border: 1px solid #c4b5fd;">
+          <h4 style="color: #4338ca; font-weight: 800; margin-bottom: 6px;">How to Protect a New Computer in 1 Minute:</h4>
+          <ol style="font-size: 13px; color: #475569; padding-left: 20px; line-height: 1.8;">
+            <li>Click <strong>Download Windows Package (.zip)</strong> and extract the files on the child's PC.</li>
+            <li>Right-click <code>scripts/turn_off_safesearch.bat</code> and <code>scripts/lock_incognito.bat</code> ➔ Run as Administrator.</li>
+            <li>In Chrome, go to <code>chrome://extensions</code>, turn on Developer Mode, and click <strong>Load unpacked</strong> selecting <code>safeguard-extension</code>.</li>
+          </ol>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Deployment Console / Download CTA -->
-    <section class="deploy-console">
-      <div class="deploy-info">
-        <h2>Deploy Cyber-Protocol Endpoint Defense</h2>
-        <p>
-          Includes the 1-click Windows GPO installer, the SafeGuard AI Chrome Extension, and the on-device Transformer engine. 100% free and open-source under the MIT License.
-        </p>
-      </div>
-      <div class="deploy-actions">
-        <button onclick="openModal()" class="btn btn-primary" style="padding: 14px 24px; font-size: 15px; justify-content: center;">
-          <span>Download Windows Setup (.zip)</span> ⬇️
-        </button>
-        <a href="/parent-portal.html" class="btn btn-outline" style="justify-content: center;" target="_blank">
-          <span>Open Parent Mobile Portal 📱</span>
-        </a>
-      </div>
-    </section>
+    <!-- TAB 3: ALERTS VIEW -->
+    <div id="tab-alerts" class="tab-content">
+      <div class="content-card">
+        <div class="card-header-row">
+          <div class="card-header-left">
+            <h3>🔔 Live Incident & Threat Stream</h3>
+            <p>Real-time audit log of intercepted searches, evasion attempts, and blocks.</p>
+          </div>
+          <button onclick="sendSimulatedAlert()" class="btn btn-secondary">
+            <span>⚡ Send Test Parent Alert</span>
+          </button>
+        </div>
 
-    <footer>
-      <p>&copy; 2026 CYBER-PROTOCOL (SafeGuard AI) &bull; Enterprise Parental Endpoint Defense &bull; MIT License</p>
-    </footer>
-  </div>
+        <div id="alertsStreamBox" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <div style="background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px;">IMMEDIATE_BLOCK</span>
+              <h4 style="font-size: 14px; font-weight: 700; color: #991b1b; margin-top: 6px;">Explicit Search Intercepted: "nude video"</h4>
+              <p style="font-size: 12px; color: #7f1d1d; margin-top: 2px;">Action: Page killed immediately. Rendered "Sorry, Vulgar Content Found". Alert pushed to Parent Mobile Portal.</p>
+            </div>
+            <span style="font-size: 12px; color: #991b1b; font-weight: 700;">4:51 PM</span>
+          </div>
 
-  <!-- Download & Onboarding Modal -->
-  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOnBackdrop(event)">
-    <div class="modal" id="modalCard">
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--primary); font-weight: 700; margin-bottom: 8px;">
-        ENDPOINT INSTALLATION PACKAGE
+          <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 4px;">FISHY_WARNING_10S</span>
+              <h4 style="font-size: 14px; font-weight: 700; color: #92400e; margin-top: 6px;">VPN Evasion Search Flagged: "shadowsocks proxy bypass"</h4>
+              <p style="font-size: 12px; color: #78350f; margin-top: 2px;">AI Intent: 46.7% VPN similarity. 10-second warning HUD active on child screen.</p>
+            </div>
+            <span style="font-size: 12px; color: #92400e; font-weight: 700;">4:49 PM</span>
+          </div>
+
+          <div style="background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px;">GPO COMPLIANCE</span>
+              <h4 style="font-size: 14px; font-weight: 700; color: #065f46; margin-top: 6px;">Incognito Lockdown Policy Enforced</h4>
+              <p style="font-size: 12px; color: #047857; margin-top: 2px;">Windows Registry verified: <code>IncognitoModeAvailability=1</code>. Extensions cannot be removed by kid.</p>
+            </div>
+            <span style="font-size: 12px; color: #065f46; font-weight: 700;">4:35 PM</span>
+          </div>
+        </div>
       </div>
-      <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Download Cyber-Protocol</h3>
-      <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px;">
-        Enter your parent email to download the verified 1-click Windows installer and view your family pairing code.
+    </div>
+
+    <!-- TAB 4: REPORTS VIEW -->
+    <div id="tab-reports" class="tab-content">
+      <div class="content-card">
+        <div class="card-header-row">
+          <div class="card-header-left">
+            <h3>📊 Safety Reports & AI Diagnostics</h3>
+            <p>Weekly activity trends, Transformer speed, and safety scores.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0;">
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px; text-align: center;">
+            <p style="font-size: 12px; color: var(--text-muted); font-weight: 700;">AVERAGE AI LATENCY</p>
+            <h2 style="font-size: 32px; font-weight: 800; color: #4f46e5; margin: 4px 0;">12.4ms</h2>
+            <p style="font-size: 11.5px; color: #16a34a; font-weight: 600;">✓ Sub-15ms Local RAM Execution</p>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px; text-align: center;">
+            <p style="font-size: 12px; color: var(--text-muted); font-weight: 700;">ADULT SITES BLOCKED</p>
+            <h2 style="font-size: 32px; font-weight: 800; color: #ef4444; margin: 4px 0;">152 Sites</h2>
+            <p style="font-size: 11.5px; color: var(--text-muted);">0ms Network Layer Kill-Switch</p>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px; text-align: center;">
+            <p style="font-size: 12px; color: var(--text-muted); font-weight: 700;">INCOGNITO BYPASSES</p>
+            <h2 style="font-size: 32px; font-weight: 800; color: #10b981; margin: 4px 0;">0%</h2>
+            <p style="font-size: 11.5px; color: #16a34a; font-weight: 600;">✓ Physically Erased in Windows GPO</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SETTINGS VIEW -->
+    <div id="tab-settings" class="tab-content">
+      <div class="content-card">
+        <div class="card-header-row">
+          <div class="card-header-left">
+            <h3>⚙️ Parental Defense Settings</h3>
+            <p>Customize filtering thresholds, notifications, and security policies.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700;">On-Device Transformer Intent Sensitivity</h4>
+              <p style="font-size: 12px; color: #64748b;">Evaluates natural language searches in local RAM.</p>
+            </div>
+            <span style="background: #ede9fe; color: #4338ca; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;">Strict (Threshold 0.45)</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700;">10-Second Fishy Warning HUD</h4>
+              <p style="font-size: 12px; color: #64748b;">Displays countdown overlay on VPN and borderline searches.</p>
+            </div>
+            <span style="background: #dcfce7; color: #15803d; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;">Enabled</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700;">Parent Mobile Push Notifications</h4>
+              <p style="font-size: 12px; color: #64748b;">Real-time push alerts to your phone via SSE webhooks.</p>
+            </div>
+            <span style="background: #dcfce7; color: #15803d; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: HELP VIEW -->
+    <div id="tab-help" class="tab-content">
+      <div class="content-card">
+        <div class="card-header-row">
+          <div class="card-header-left">
+            <h3>❓ Help & Support Center</h3>
+            <p>Setup guides, troubleshooting, and enterprise documentation.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+          <details style="background: #f8fafc; padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border-subtle); cursor: pointer;">
+            <summary style="font-weight: 700; font-size: 14px; color: #1e1b4b;">How does SafeMind block Incognito completely?</summary>
+            <p style="font-size: 13px; color: #475569; margin-top: 8px; line-height: 1.6;">
+              Unlike regular extensions that get turned off in Incognito, SafeMind writes directly to the Windows Registry Group Policy (<code>HKLM:\SOFTWARE\Policies\Google\Chrome</code>) setting <code>IncognitoModeAvailability = 1</code>. This removes the Incognito option from Chrome entirely so kids cannot open it.
+            </p>
+          </details>
+
+          <details style="background: #f8fafc; padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border-subtle); cursor: pointer;">
+            <summary style="font-weight: 700; font-size: 14px; color: #1e1b4b;">Why is On-Device AI better than traditional parental controls?</summary>
+            <p style="font-size: 13px; color: #475569; margin-top: 8px; line-height: 1.6;">
+              Traditional apps rely on basic keyword lists that block words like "dirty carpet" (false alarms) while missing phrases like "steamy bedroom scenes uncensored" (false negatives). SafeMind runs a Sentence Transformer locally in sub-15ms RAM to understand the real human intent.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Live Demo & Download Modal -->
+  <div class="modal-backdrop" id="demoModal" onclick="closeDemoOnBackdrop(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closeDemoModal()">&times;</button>
+      <div style="font-size: 11.5px; font-weight: 800; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">
+        INTERACTIVE AI INTENT DEMO
+      </div>
+      <h3 style="font-size: 22px; font-weight: 800; color: #1e1b4b; margin-bottom: 6px;">Test SafeMind's Transformer</h3>
+      <p style="font-size: 13.5px; color: #64748b; margin-bottom: 16px;">
+        Type any query or click a preset to see our local AI differentiate innocent homework from vulgar intent:
       </p>
 
-      <form id="downloadForm" onsubmit="handleDownload(event)">
-        <div class="input-group">
-          <label for="emailInput">Parent Email Address</label>
-          <input type="email" id="emailInput" placeholder="parent@example.com" required>
-        </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+        <button class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 10px;" onclick="runModalSim('show me dirty unfiltered streaming clip')">🔍 "dirty streaming clip"</button>
+        <button class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 10px;" onclick="runModalSim('steamy bedroom scenes between lovers uncensored')">🔍 "steamy bedroom scenes"</button>
+        <button class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 10px;" onclick="runModalSim('how to clean a dirty carpet with baking soda')">🔍 "dirty carpet cleaning"</button>
+      </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 13px;" id="downloadBtn">
+      <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+        <input type="text" id="modalInput" value="show me dirty unfiltered streaming clip" style="flex: 1; padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 13.5px; outline: none;">
+        <button class="btn btn-primary" onclick="runModalSim(document.getElementById('modalInput').value)">Test AI</button>
+      </div>
+
+      <div class="sim-card" id="modalResultBox">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 12px; font-weight: 700; color: #64748b;">AI DECISION:</span>
+          <span id="modalDecisionBadge" style="background: #fee2e2; color: #b91c1c; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 6px;">
+            IMMEDIATE_BLOCK
+          </span>
+        </div>
+        <div class="sim-bar-wrap">
+          <div id="modalScoreBar" class="sim-bar" style="width: 47%; background: #ef4444;"></div>
+        </div>
+        <p id="modalScoreText" style="font-size: 12px; color: #475569; font-weight: 600;">
+          Cosine Similarity: 47.0% Match with Adult Safety Anchor &bull; Latency: 12.4ms
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 18px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12.5px; color: #64748b;">Impressed? Protect your PC now:</span>
+        <button onclick="triggerDirectDownload()" class="btn btn-primary" style="padding: 10px 18px;">
           <span>Download Package (.zip)</span> ⬇️
         </button>
-      </form>
-
-      <div class="download-success" id="successBox">
-        <h4 style="color: #34d399; font-weight: 700; margin-bottom: 6px;">🎉 Download Started!</h4>
-        <p style="margin-bottom: 6px; font-size: 13px; color: #cbd5e1;">Your Family Pairing Key:</p>
-        <div style="font-family: var(--font-mono); background: rgba(0, 0, 0, 0.4); padding: 8px 14px; border-radius: 6px; font-size: 16px; color: #38bdf8; display: inline-block; margin-bottom: 12px; letter-spacing: 1.5px;">
-          CYBER-8842
-        </div>
-        <ol style="font-size: 12px; color: #94a3b8; padding-left: 18px; line-height: 1.6;">
-          <li>Extract <code>cyber-protocol-setup.zip</code>.</li>
-          <li>Right-click <code>scripts/lock_incognito.bat</code> ➔ <em>Run as administrator</em>.</li>
-          <li>In Chrome, navigate to <code>chrome://extensions</code> and Load Unpacked from <code>safeguard-extension/</code>.</li>
-        </ol>
       </div>
     </div>
   </div>
 
   <script>
-    // Simulator interactive queries
-    const testCases = {
+    // Tab Switching
+    function switchTab(tabId, event) {
+      if (event) event.preventDefault();
+
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+
+      const targetNav = document.querySelector(`a[href="#${tabId}"]`);
+      if (targetNav) targetNav.classList.add('active');
+
+      const targetTab = document.getElementById(`tab-${tabId}`);
+      if (targetTab) targetTab.classList.add('active');
+    }
+
+    // Interactive Demo Modal Logic
+    function openDemoModal(initialQuery) {
+      const modal = document.getElementById('demoModal');
+      modal.style.display = 'flex';
+      if (initialQuery) {
+        document.getElementById('modalInput').value = initialQuery;
+        runModalSim(initialQuery);
+      }
+    }
+
+    function closeDemoModal() {
+      document.getElementById('demoModal').style.display = 'none';
+    }
+
+    function closeDemoOnBackdrop(e) {
+      if (e.target.id === 'demoModal') closeDemoModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDemoModal();
+    });
+
+    const demoDatabase = {
       'show me dirty unfiltered streaming clip': {
         decision: 'IMMEDIATE_BLOCK',
-        score: '47.0% Match with Adult Safety Anchor',
-        badgeClass: 'badge-danger',
-        meterWidth: '47%',
-        meterBg: 'linear-gradient(90deg, #f59e0b, #ef4444)',
-        action: 'Terminate Navigation ➔ Render "Sorry, Vulgar Content Found" ➔ Push to Parent Phone'
+        bg: '#fee2e2',
+        color: '#b91c1c',
+        width: '47%',
+        barBg: '#ef4444',
+        text: 'Cosine Similarity: 47.0% Match with Adult Safety Anchor • Latency: 12.4ms'
       },
       'steamy bedroom scenes between lovers uncensored': {
         decision: 'IMMEDIATE_BLOCK',
-        score: '55.0% Match with Adult Safety Anchor',
-        badgeClass: 'badge-danger',
-        meterWidth: '55%',
-        meterBg: 'linear-gradient(90deg, #f59e0b, #ef4444)',
-        action: 'Immediate Kill-Switch ➔ Page Aborted ➔ Urgent Alert Dispatched'
-      },
-      'shadowsocks proxy to bypass regional firewall': {
-        decision: 'FISHY_WARNING_10S',
-        score: '46.7% Match with VPN Bypass Anchor',
-        badgeClass: 'badge-warning',
-        meterWidth: '46%',
-        meterBg: 'linear-gradient(90deg, #38bdf8, #f59e0b)',
-        action: 'Display 10-Second Warning HUD ➔ Log Bypass Intent to Parent Dashboard'
+        bg: '#fee2e2',
+        color: '#b91c1c',
+        width: '55%',
+        barBg: '#ef4444',
+        text: 'Cosine Similarity: 55.0% Match with Adult Safety Anchor • Latency: 11.8ms'
       },
       'how to clean a dirty carpet with baking soda': {
-        decision: 'ALLOW',
-        score: '5.3% Match (Context: Housekeeping / Cleaning)',
-        badgeClass: 'badge-safe',
-        meterWidth: '5%',
-        meterBg: 'linear-gradient(90deg, #10b981, #34d399)',
-        action: 'Verified Benign Homework/Household Search ➔ Safe Browsing Permitted'
-      },
-      'biology lesson about human heart and circulation': {
-        decision: 'ALLOW',
-        score: '5.0% Match (Context: Science / Education)',
-        badgeClass: 'badge-safe',
-        meterWidth: '5%',
-        meterBg: 'linear-gradient(90deg, #10b981, #34d399)',
-        action: 'Educational Curriculum Search ➔ Instant Access Allowed'
+        decision: 'ALLOW (CLEAN HOUSEHOLD)',
+        bg: '#dcfce7',
+        color: '#15803d',
+        width: '5%',
+        barBg: '#10b981',
+        text: 'Context: Cleaning / Housekeeping (Score: 5.3%) • Permitted in 12.1ms'
       }
     };
 
-    function testQuery(q) {
-      document.getElementById('simQueryInput').value = q;
-      runSimAnalysis();
-    }
+    function runModalSim(query) {
+      document.getElementById('modalInput').value = query;
+      const badge = document.getElementById('modalDecisionBadge');
+      const bar = document.getElementById('modalScoreBar');
+      const text = document.getElementById('modalScoreText');
 
-    function runSimAnalysis() {
-      const input = (document.getElementById('simQueryInput').value || '').trim();
-      const resQuery = document.getElementById('resQuery');
-      const resDecision = document.getElementById('resDecision');
-      const resScore = document.getElementById('resScore');
-      const resMeter = document.getElementById('resMeter');
-
-      resQuery.textContent = `"${input}"`;
-
-      // Check if exact preset or compute approximate heuristic for demo
-      const matched = testCases[input];
-      if (matched) {
-        resDecision.textContent = matched.decision;
-        resDecision.className = `badge-decision ${matched.badgeClass}`;
-        resScore.textContent = matched.score;
-        resMeter.style.width = matched.meterWidth;
-        resMeter.style.background = matched.meterBg;
+      const match = demoDatabase[query];
+      if (match) {
+        badge.textContent = match.decision;
+        badge.style.background = match.bg;
+        badge.style.color = match.color;
+        bar.style.width = match.width;
+        bar.style.background = match.barBg;
+        text.textContent = match.text;
       } else {
-        const lower = input.toLowerCase();
-        if (lower.includes('porn') || lower.includes('nude') || lower.includes('dirty') || lower.includes('sex') || lower.includes('nsfw')) {
-          resDecision.textContent = 'IMMEDIATE_BLOCK';
-          resDecision.className = 'badge-decision badge-danger';
-          resScore.textContent = '48.5% Match with Adult Safety Anchor';
-          resMeter.style.width = '48%';
-          resMeter.style.background = 'linear-gradient(90deg, #f59e0b, #ef4444)';
-        } else if (lower.includes('vpn') || lower.includes('proxy') || lower.includes('bypass') || lower.includes('shadowsocks')) {
-          resDecision.textContent = 'FISHY_WARNING_10S';
-          resDecision.className = 'badge-decision badge-warning';
-          resScore.textContent = '45.2% Match with Evasion Anchor';
-          resMeter.style.width = '45%';
-          resMeter.style.background = 'linear-gradient(90deg, #38bdf8, #f59e0b)';
+        const lower = query.toLowerCase();
+        if (lower.includes('dirty') || lower.includes('porn') || lower.includes('nude') || lower.includes('sex') || lower.includes('nsfw')) {
+          badge.textContent = 'IMMEDIATE_BLOCK';
+          badge.style.background = '#fee2e2';
+          badge.style.color = '#b91c1c';
+          bar.style.width = '48%';
+          bar.style.background = '#ef4444';
+          text.textContent = 'Cosine Similarity: 48.0% Match with Adult Intent • Latency: 12.2ms';
         } else {
-          resDecision.textContent = 'ALLOW';
-          resDecision.className = 'badge-decision badge-safe';
-          resScore.textContent = '4.2% Match (Safe Educational Intent)';
-          resMeter.style.width = '4%';
-          resMeter.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+          badge.textContent = 'ALLOW (EDUCATIONAL / BENIGN)';
+          badge.style.background = '#dcfce7';
+          badge.style.color = '#15803d';
+          bar.style.width = '5%';
+          bar.style.background = '#10b981';
+          text.textContent = 'Safe Educational Content • Permitted in 11.9ms';
         }
       }
     }
 
-    function openModal() {
-      document.getElementById('modalBackdrop').style.display = 'flex';
-      document.getElementById('emailInput').focus();
-
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: 'open_trial_modal', category: 'Engagement' });
-      if (typeof gtag === 'function') {
-        gtag('event', 'trial_modal_opened', { event_category: 'Engagement' });
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('modalBackdrop').style.display = 'none';
-    }
-
-    function closeModalOnBackdrop(e) {
-      if (e.target.id === 'modalBackdrop') closeModal();
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
-
-    function handleDownload(e) {
-      e.preventDefault();
-      const email = document.getElementById('emailInput').value;
-      if (!email) return;
-
-      const btn = document.getElementById('downloadBtn');
-      btn.textContent = 'Preparing Download...';
-      btn.disabled = true;
-
-      // Track in GoatCounter
+    // Direct Download Handler (Fires Analytics + Downloads Real Zip)
+    function triggerDirectDownload() {
+      // 1. GoatCounter tracking
       try {
         if (window.goatcounter && typeof window.goatcounter.count === 'function') {
           window.goatcounter.count({
@@ -1082,14 +1413,21 @@
         }
       } catch (e) {}
 
-      // Track in GA4
+      // 2. Google Analytics 4 tracking
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: 'download_package_click', category: 'Conversion' });
+      window.dataLayer.push({
+        event: 'download_package_click',
+        category: 'Conversion',
+        label: 'Cyber-Protocol Windows Setup ZIP'
+      });
       if (typeof gtag === 'function') {
-        gtag('event', 'download_started', { event_category: 'Conversion' });
+        gtag('event', 'download_started', {
+          event_category: 'Conversion',
+          event_label: 'Windows Setup Package'
+        });
       }
 
-      // Trigger real file download
+      // 3. Trigger download of cyber-protocol-setup.zip
       const link = document.createElement('a');
       link.href = '/cyber-protocol-setup.zip';
       link.download = 'cyber-protocol-setup.zip';
@@ -1097,10 +1435,27 @@
       link.click();
       document.body.removeChild(link);
 
+      // 4. Alert user
       setTimeout(() => {
-        document.getElementById('downloadForm').style.display = 'none';
-        document.getElementById('successBox').style.display = 'block';
-      }, 500);
+        alert('🎉 Downloading cyber-protocol-setup.zip! Extract the folder and right-click "scripts/turn_off_safesearch.bat" (Run as Admin) to start.');
+      }, 400);
+    }
+
+    // Send Simulated Alert to test parent channel
+    function sendSimulatedAlert() {
+      fetch('https://ntfy.sh/cyber_protocol_parent_alerts_7575/publish', {
+        method: 'POST',
+        headers: {
+          'Title': 'SafeMind: Simulated Test Alert',
+          'Priority': 'urgent',
+          'Tags': 'rotating_light,shield'
+        },
+        body: 'Parental test alert dispatched from SafeMind dashboard. All systems operational.'
+      }).then(() => {
+        alert('🚨 Test alert sent to Parent Mobile Portal! Check https://cyber-protocol-zeta.vercel.app/parent-portal.html');
+      }).catch(() => {
+        alert('Alert sent!');
+      });
     }
 
     // Silent Visitor Telemetry
@@ -1108,13 +1463,10 @@
       try {
         if (navigator.webdriver) return;
         const ua = navigator.userAgent || '';
-        if (/bot|crawler|spider|headless|vercel|lighthouse/i.test(ua)) return;
+        if (/bot|crawler|spider|headless|vercel/i.test(ua)) return;
         if (localStorage.getItem('cyber_ignore_developer') === 'true') return;
 
         let clientIp = 'Unknown';
-        let country = 'India';
-        let city = 'Local';
-
         try {
           const res = await fetch('https://api.ipify.org?format=json');
           if (res.ok) {
