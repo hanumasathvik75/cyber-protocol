@@ -19,81 +19,123 @@ function sendWindowsToast(title, message) {
 }
 
 // -------------------------------------------------------------
-// AUTONOMOUS AI DECISION AGENT
+// SOTA ON-DEVICE TRANSFORMER INITIALIZATION (all-MiniLM-L6-v2)
 // -------------------------------------------------------------
-function autonomousDecisionAgent(payload) {
+let extractor = null;
+let cos_sim = null;
+let adultAnchorVec = null;
+let vpnAnchorVec = null;
+
+const SAFETY_ANCHORS = {
+  ADULT_EXPLICIT: "watching explicit pornographic adult sex nude videos",
+  VPN_BYPASS: "download free vpn proxy to unblock restricted websites"
+};
+
+async function initTransformerEngine() {
+  try {
+    console.log("[*] Initializing Pre-Trained On-Device Transformer: Xenova/all-MiniLM-L6-v2...");
+    const transformers = await import('@xenova/transformers');
+    extractor = await transformers.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    cos_sim = transformers.cos_sim;
+
+    // Pre-compute intent anchor embeddings into RAM
+    adultAnchorVec = await extractor(SAFETY_ANCHORS.ADULT_EXPLICIT, { pooling: 'mean', normalize: true });
+    vpnAnchorVec = await extractor(SAFETY_ANCHORS.VPN_BYPASS, { pooling: 'mean', normalize: true });
+
+    console.log("[✓] Transformer Decision Engine Ready! (Sub-15ms Local Inference Active)");
+  } catch (err) {
+    console.error("[!] Warning: Could not initialize transformer engine, fallback to fast rules:", err.message);
+  }
+}
+
+// -------------------------------------------------------------
+// AUTONOMOUS AI HYBRID DECISION AGENT
+// (Fast Rules + Deep Semantic Transformer Cosine Similarity)
+// -------------------------------------------------------------
+async function autonomousDecisionAgent(payload) {
   const query = (payload.searchQuery || '').toLowerCase();
   const url = (payload.url || '').toLowerCase();
   const domain = (payload.domain || '').toLowerCase();
   const fullContext = `${query} ${url} ${domain}`.trim();
 
-  // 1. TIER 3: CRITICAL EXPLICIT INTENT (Score: 0.95 - 1.0)
-  // Sentences kids type when seeking explicit material
+  // 1. FAST RULE-BASED TIER 3: CRITICAL EXPLICIT PHRASES (< 1ms)
   const criticalPhrases = [
-    'i want nude',
-    'i want hot video',
-    'i want porn',
-    'hot naked',
-    'nude video',
-    'nude photo',
-    'naked girl',
-    'xxx video',
-    'sex video',
-    'sexy video',
-    'free porn',
-    'pornhub',
-    'xhamster',
-    'xvideos',
-    'xnxx',
-    'stripchat',
-    'chaturbate',
-    'onlyfans'
+    'i want nude', 'i want hot video', 'i want porn', 'hot naked',
+    'nude video', 'nude photo', 'naked girl', 'xxx video', 'sex video',
+    'sexy video', 'free porn', 'pornhub', 'xhamster', 'xvideos',
+    'xnxx', 'stripchat', 'chaturbate', 'onlyfans'
   ];
 
   for (const phrase of criticalPhrases) {
     if (fullContext.includes(phrase)) {
       return {
         decision: 'IMMEDIATE_BLOCK',
-        riskScore: 0.98,
+        riskScore: 0.99,
         confidence: 'HIGH',
-        category: 'Explicit Sexual Intent',
+        category: 'Rule Engine: Explicit Sexual Intent',
         matchedRule: phrase,
-        reason: `AI Agent detected explicit intent: "${phrase}"`
+        reason: `Immediate rule matched explicit intent: "${phrase}"`
       };
     }
   }
 
-  // 2. TIER 2: FISHY / BORDERLINE CONTENT (Score: 0.60 - 0.84)
-  // "Too fishy" - triggers 10-second warning banner and parent notification
+  // 2. FAST RULE-BASED TIER 2: SUSPICIOUS / BORDERLINE (< 1ms)
   const fishyPhrases = [
-    'hot girl',
-    'hot video',
-    'sexy photo',
-    'bikini photo',
-    'underwear girl',
-    'girls kissing',
-    'hot dance',
-    'free vpn',
-    'bypass block',
-    'bypass parental',
-    'hide ip',
-    'proxy unblock'
+    'hot girl', 'hot video', 'sexy photo', 'bikini photo', 'underwear girl',
+    'girls kissing', 'hot dance', 'free vpn', 'bypass block', 'bypass parental',
+    'hide ip', 'proxy unblock'
   ];
 
   for (const phrase of fishyPhrases) {
     if (fullContext.includes(phrase)) {
       return {
         decision: 'FISHY_WARNING_10S',
-        riskScore: 0.72,
+        riskScore: 0.75,
         confidence: 'MEDIUM',
-        category: 'Fishy / Borderline Material',
+        category: 'Rule Engine: Suspicious Evasion/Borderline',
         matchedRule: phrase,
-        reason: `AI Agent flagged suspicious/borderline content: "${phrase}"`
+        reason: `Rule flagged suspicious activity: "${phrase}"`
       };
     }
   }
 
-  // 3. TIER 1: BENIGN / SAFE (Score: 0.0 - 0.20)
+  // 3. DEEP SEMANTIC TRANSFORMER INTENT CLASSIFICATION (~15ms)
+  // Evaluates natural language queries without relying on hardcoded words!
+  if (extractor && cos_sim && adultAnchorVec && vpnAnchorVec && query.length > 3) {
+    try {
+      const qVec = await extractor(query, { pooling: 'mean', normalize: true });
+      const adultSim = cos_sim(qVec.data, adultAnchorVec.data);
+      const vpnSim = cos_sim(qVec.data, vpnAnchorVec.data);
+
+      console.log(`[AI Transformer] Query: "${query}" | Adult Sim: ${(adultSim * 100).toFixed(1)}% | VPN Sim: ${(vpnSim * 100).toFixed(1)}%`);
+
+      if (adultSim >= 0.58) {
+        return {
+          decision: 'IMMEDIATE_BLOCK',
+          riskScore: parseFloat(adultSim.toFixed(2)),
+          confidence: 'HIGH',
+          category: 'AI Transformer: Explicit Adult Intent',
+          matchedRule: `Semantic Similarity: ${(adultSim * 100).toFixed(1)}%`,
+          reason: `On-Device Transformer detected explicit adult semantic intent`
+        };
+      }
+
+      if (vpnSim >= 0.60) {
+        return {
+          decision: 'FISHY_WARNING_10S',
+          riskScore: parseFloat(vpnSim.toFixed(2)),
+          confidence: 'HIGH',
+          category: 'AI Transformer: VPN / Proxy Bypass Intent',
+          matchedRule: `Semantic Similarity: ${(vpnSim * 100).toFixed(1)}%`,
+          reason: `On-Device Transformer detected network bypass/evasion intent`
+        };
+      }
+    } catch (e) {
+      console.warn("[!] Error during transformer inference:", e.message);
+    }
+  }
+
+  // 4. TIER 1: BENIGN / SAFE (Homework, Gaming, Normal Web)
   return {
     decision: 'ALLOW',
     riskScore: 0.05,
@@ -116,31 +158,35 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'GET' && req.url === '/api/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'active', agent: 'Cyber-Protocol Autonomous Agent v2.0' }));
+    res.end(JSON.stringify({ 
+      status: 'active', 
+      agent: 'Cyber-Protocol Autonomous Agent v2.5',
+      transformer_engine: extractor ? 'Online (all-MiniLM-L6-v2)' : 'Initializing'
+    }));
     return;
   }
 
   if (req.method === 'POST' && req.url === '/api/evaluate') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const payload = JSON.parse(body || '{}');
-        const assessment = autonomousDecisionAgent(payload);
+        const assessment = await autonomousDecisionAgent(payload);
 
         const timestamp = new Date().toLocaleTimeString();
-        console.log(`[${timestamp}] Autonomous Evaluation: "${payload.searchQuery || payload.domain || payload.url}"`);
-        console.log(`           Decision: ${assessment.decision} | Risk Score: ${assessment.riskScore} | Category: ${assessment.category}`);
+        console.log(`[${timestamp}] Evaluation for "${payload.searchQuery || payload.domain || payload.url}":`);
+        console.log(`             Decision: ${assessment.decision} | Score: ${assessment.riskScore} | ${assessment.category}`);
 
         if (assessment.decision === 'IMMEDIATE_BLOCK') {
           sendWindowsToast(
             '🚨 Cyber-Protocol: Immediate Kill-Switch',
-            `AI Agent terminated search/page: "${assessment.matchedRule}"`
+            `AI Transformer terminated explicit search: "${payload.searchQuery || assessment.matchedRule}"`
           );
         } else if (assessment.decision === 'FISHY_WARNING_10S') {
           sendWindowsToast(
-            '⚠️ Cyber-Protocol: Fishy Activity Detected',
-            `AI Agent monitoring borderline content: "${assessment.matchedRule}"`
+            '⚠️ Cyber-Protocol: Bypass Attempt Flagged',
+            `AI Transformer monitoring suspicious intent: "${payload.searchQuery || assessment.matchedRule}"`
           );
         }
 
@@ -161,9 +207,10 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({ error: 'Not found' }));
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log('====================================================');
-  console.log('   🛡️  Cyber-Protocol: Autonomous Decision Agent v2.0');
+  console.log('   🛡️  Cyber-Protocol: Autonomous Decision Agent v2.5');
   console.log(`   Listening at: http://localhost:${PORT}`);
   console.log('====================================================');
+  await initTransformerEngine();
 });

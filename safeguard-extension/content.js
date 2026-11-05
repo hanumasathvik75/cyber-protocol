@@ -137,6 +137,27 @@
         return;
       }
     }
+
+    // 3. TIER 3/2 DEEP AI EVALUATION: On-Device Transformer Semantic Verification
+    if (query && query.length >= 4) {
+      fetch('http://localhost:3000/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchQuery: query, url: currentUrl, domain: hostname })
+      })
+      .then(res => res.json())
+      .then(assessment => {
+        if (assessment.decision === 'IMMEDIATE_BLOCK') {
+          try { window.stop(); } catch (e) {}
+          window.location.replace(chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(query)}&domain=AI_TRANSFORMER_KILL_SWITCH`));
+        } else if (assessment.decision === 'FISHY_WARNING_10S') {
+          show10SecondWarningHUD(query);
+        }
+      })
+      .catch(() => {
+        // Standalone offline fallback when background server is sleeping
+      });
+    }
   }
 
   // Initial evaluation
