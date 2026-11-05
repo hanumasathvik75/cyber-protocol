@@ -77,6 +77,18 @@ async function autonomousDecisionAgent(payload) {
   const domain = (payload.domain || '').toLowerCase();
   const fullContext = `${query} ${url} ${domain}`.trim();
 
+  // 0. ANTI-TAMPER SHIELD: PREVENT EXTENSION DELETION
+  if (fullContext.includes('tamper_attempt')) {
+    return {
+      decision: 'IMMEDIATE_BLOCK',
+      riskScore: 0.99,
+      confidence: 'CRITICAL',
+      category: '🚨 Anti-Tamper: Kid Attempted to Delete Extension',
+      matchedRule: 'Extension Tamper Lock',
+      reason: 'Kid navigated to chrome://extensions in an attempt to disable or delete SafeMind'
+    };
+  }
+
   // 1. FAST RULE-BASED TIER 3: CRITICAL EXPLICIT PHRASES (< 1ms)
   const criticalPhrases = [
     'i want nude', 'i want hot video', 'i want porn', 'hot naked',
@@ -168,6 +180,33 @@ async function autonomousDecisionAgent(payload) {
   };
 }
 
+let lastHeartbeatTime = Date.now();
+let hasTamperAlertFired = false;
+let extensionEverConnected = false;
+
+// Anti-Tampering Watchdog: Detects if kid disables or deletes the extension
+setInterval(() => {
+  if (extensionEverConnected && !hasTamperAlertFired) {
+    const elapsed = Date.now() - lastHeartbeatTime;
+    if (elapsed > 35000) { // 35 seconds without heartbeat = extension was turned off/deleted
+      hasTamperAlertFired = true;
+      console.warn(`[!] TAMPER DETECTED: Extension heartbeat lost (${Math.round(elapsed / 1000)}s silent)!`);
+      
+      sendWindowsToast(
+        '🚨 SafeMind: Anti-Tamper Warning',
+        'Protection extension was disabled, closed, or removed! Checking computer integrity.'
+      );
+      
+      notifyParentPortal(
+        '🚨 TAMPER ALERT: Extension Disabled on Kid PC',
+        'SafeMind extension heartbeat lost. The kid may have attempted to disable or delete the browser extension.',
+        'urgent',
+        'rotating_light,warning,stop_sign'
+      );
+    }
+  }
+}, 10000);
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -186,6 +225,15 @@ const server = http.createServer((req, res) => {
       agent: 'Cyber-Protocol Autonomous Agent v2.5',
       transformer_engine: extractor ? 'Online (all-MiniLM-L6-v2)' : 'Initializing'
     }));
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/heartbeat') {
+    lastHeartbeatTime = Date.now();
+    extensionEverConnected = true;
+    hasTamperAlertFired = false;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'alive', watchdog: 'monitoring' }));
     return;
   }
 

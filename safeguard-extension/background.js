@@ -108,4 +108,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-console.log('🛡️ Cyber-Protocol: Deep Defense Autonomous Worker active.');
+// -------------------------------------------------------------
+// ANTI-TAMPER SHIELD: PREVENT EXTENSION DELETION
+// -------------------------------------------------------------
+// 1. Detect if kid tries to open chrome://extensions or edge://extensions
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  const currentUrl = (changeInfo.url || tab.url || '').toLowerCase();
+  if (currentUrl.includes('chrome://extensions') || currentUrl.includes('edge://extensions')) {
+    // Immediately close the tab or redirect
+    try {
+      chrome.tabs.remove(tabId);
+    } catch (e) {
+      chrome.tabs.update(tabId, { url: 'https://www.google.com' });
+    }
+
+    triggerNotification(
+      '🚨 SafeMind: Tamper Protection Activated',
+      'Access to extension management is restricted by parent policy.'
+    );
+
+    // Notify backend and Parent Mobile Portal
+    fetch('http://localhost:3000/api/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        searchQuery: 'TAMPER_ATTEMPT: Kid opened chrome://extensions to delete protection'
+      })
+    }).catch(() => {});
+  }
+});
+
+// 2. Active Watchdog Heartbeat (Every 10 seconds)
+function sendWatchdogHeartbeat() {
+  fetch('http://localhost:3000/api/heartbeat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'alive', timestamp: Date.now() })
+  }).catch(() => {});
+}
+sendWatchdogHeartbeat();
+setInterval(sendWatchdogHeartbeat, 10000);
+
+console.log('🛡️ Cyber-Protocol: Deep Defense Autonomous Worker & Anti-Tamper Shield active.');
