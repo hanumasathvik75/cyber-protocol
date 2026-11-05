@@ -18,25 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Determine if it was a search query or a website domain
   let displayTarget = 'Restricted Content';
-  let displayCategory = 'Adult Material (Strict Policy Enforced)';
+  let displayCategory = 'Sorry, Vulgar Content Found (Strict Policy Enforced)';
 
   if (rawQuery) {
     displayTarget = `Search Query: "${rawQuery}"`;
     if (rawQuery.toLowerCase().includes('vpn') || rawQuery.toLowerCase().includes('proxy') || rawQuery.toLowerCase().includes('bypass')) {
-      displayCategory = 'Bypass & Security Violation (VPN Query)';
+      displayCategory = 'Bypass & Security Violation (VPN Evasion)';
     } else {
-      displayCategory = 'Restricted Search Query (Safety Filter)';
+      displayCategory = 'AI Transformer: Vulgar / Explicit Content Intercepted';
     }
   } else if (rawDomain) {
     displayTarget = rawDomain;
-    displayCategory = 'Adult Content (Strict Policy Enforced)';
+    displayCategory = 'Vulgar / Adult Website (Enforced GPO Rule)';
   } else if (rawUrl) {
     try {
       displayTarget = new URL(rawUrl).hostname;
     } catch (e) {
       displayTarget = rawUrl;
     }
-    displayCategory = 'Adult Content (Strict Policy Enforced)';
+    displayCategory = 'Vulgar / Adult Material Blocked';
   }
 
   if (targetEl) targetEl.textContent = displayTarget;

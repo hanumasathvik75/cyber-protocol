@@ -18,6 +18,24 @@ function sendWindowsToast(title, message) {
   });
 }
 
+// Send Real-Time Cloud Notification to Parent Mobile Portal & Android App
+async function notifyParentPortal(title, message, priority = 'high', tags = 'warning') {
+  try {
+    await fetch('https://ntfy.sh/cyber_protocol_parent_alerts_7575/publish', {
+      method: 'POST',
+      headers: {
+        'Title': title,
+        'Priority': priority,
+        'Tags': tags
+      },
+      body: message
+    });
+    console.log(`[+] Parent Android Portal alert dispatched: "${title}"`);
+  } catch (err) {
+    console.warn(`[!] Note on parent portal dispatch:`, err.message);
+  }
+}
+
 // -------------------------------------------------------------
 // SOTA ON-DEVICE TRANSFORMER INITIALIZATION (all-MiniLM-L6-v2)
 // -------------------------------------------------------------
@@ -179,14 +197,28 @@ const server = http.createServer((req, res) => {
         console.log(`             Decision: ${assessment.decision} | Score: ${assessment.riskScore} | ${assessment.category}`);
 
         if (assessment.decision === 'IMMEDIATE_BLOCK') {
+          const target = payload.searchQuery || assessment.matchedRule || payload.domain || 'Explicit URL';
           sendWindowsToast(
-            '🚨 Cyber-Protocol: Immediate Kill-Switch',
-            `AI Transformer terminated explicit search: "${payload.searchQuery || assessment.matchedRule}"`
+            '🚨 Cyber-Protocol: Vulgar Content Intercepted',
+            `Sorry, vulgar content found: "${target}". Navigation terminated immediately.`
+          );
+          notifyParentPortal(
+            '🚨 Vulgar Content Intercepted on Kid PC',
+            `Kid typed/requested: "${target}"\nAI Safety Score: ${assessment.riskScore}\nAction: Block screen shown & page killed.`,
+            'urgent',
+            'rotating_light,no_entry'
           );
         } else if (assessment.decision === 'FISHY_WARNING_10S') {
+          const target = payload.searchQuery || assessment.matchedRule || payload.domain || 'Suspicious URL';
           sendWindowsToast(
-            '⚠️ Cyber-Protocol: Bypass Attempt Flagged',
-            `AI Transformer monitoring suspicious intent: "${payload.searchQuery || assessment.matchedRule}"`
+            '⚠️ Cyber-Protocol: Warning Activity Flagged',
+            `AI Transformer monitoring suspicious activity: "${target}"`
+          );
+          notifyParentPortal(
+            '⚠️ Warning: Suspicious Search on Kid PC',
+            `Kid typed: "${target}"\nAI Intent: ${assessment.category}\nAction: 10-second warning HUD active.`,
+            'default',
+            'warning,eyes'
           );
         }
 

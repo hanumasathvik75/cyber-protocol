@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cyber-Protocol | Parent Android Mobile Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #131b2e;
+      --surface-variant: #1c263f;
+      --primary: #38bdf8;
+      --on-primary: #00354e;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --success: #10b981;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: rgba(56, 189, 248, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: #05070c;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Mobile Device Frame Container */
+    .phone-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background-color: var(--bg);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Android Status Bar */
+    .android-status-bar {
+      height: 38px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    /* App Header */
+    .app-header {
+      padding: 16px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    .pulse {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Device Card */
+    .device-card {
+      margin: 16px 20px 0;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(19, 27, 46, 0.9) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .device-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .device-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .device-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 11.5px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      color: #64748b;
+      font-size: 10.5px;
+    }
+
+    .stat-val {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Alert Stream Section */
+    .section-header {
+      padding: 20px 20px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .alert-list {
+      padding: 0 20px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .alert-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: transform 0.2s;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-card.danger {
+      border-color: rgba(239, 68, 68, 0.35);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(19, 27, 46, 0.9) 100%);
+    }
+
+    .alert-card.warning {
+      border-color: rgba(245, 158, 11, 0.35);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(19, 27, 46, 0.9) 100%);
+    }
+
+    .alert-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .alert-badge {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-danger {
+      background: var(--danger-bg);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-warning {
+      background: var(--warning-bg);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .alert-time {
+      font-size: 11px;
+      color: #64748b;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .alert-query {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .alert-detail {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .alert-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 600;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 8px;
+    }
+
+    /* Android Push Notification Banner */
+    .push-banner {
+      margin: 10px 20px;
+      background: rgba(56, 189, 248, 0.06);
+      border: 1px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .push-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .push-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .btn-push {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    /* Bottom Navigation Bar */
+    .android-nav-bar {
+      height: 60px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      position: sticky;
+      bottom: 0;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container">
+    <!-- Android Top Status Bar -->
+    <div class="android-status-bar">
+      <span id="android-clock">12:00</span>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span>5G</span>
+        <span>📶</span>
+        <span>🔋 98%</span>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header">
+      <div class="brand">
+        <img src="/logo.svg" alt="Cyber-Protocol" class="brand-logo">
+        <div>
+          <div class="brand-name">Cyber-Protocol</div>
+          <div class="brand-sub">Parent Security Mobile Portal</div>
+        </div>
+      </div>
+      <div class="live-pill">
+        <div class="pulse"></div>
+        <span>PROTECTED</span>
+      </div>
+    </div>
+
+    <!-- Active Monitored Device -->
+    <div class="device-card">
+      <div class="device-title">MONITORED ENDPOINT</div>
+      <div class="device-name">
+        <span>💻 Kid's Windows 11 PC</span>
+        <span style="font-size: 11px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 100px;">Chrome Enforced</span>
+      </div>
+      <div class="device-stats">
+        <div class="stat-item">
+          <span class="stat-label">AI Engine</span>
+          <span class="stat-val" style="color: #38bdf8;">all-MiniLM-L6-v2</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Incognito Lock</span>
+          <span class="stat-val" style="color: #10b981;">Permanent GPO</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Latency</span>
+          <span class="stat-val" style="color: #10b981;">&lt; 15ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android Real-Time Push Setup Banner -->
+    <div class="push-banner">
+      <div class="push-title">📱 Receive Push Alerts on Android Phone</div>
+      <div class="push-desc">
+        Install the free <strong>ntfy</strong> app from Google Play Store &bull; Subscribe to topic: <code style="color: #fff;">cyber_protocol_parent_alerts_7575</code>
+      </div>
+      <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" class="btn-push">
+        <span>Install ntfy for Android &rarr;</span>
+      </a>
+    </div>
+
+    <!-- Live Alert Stream Section -->
+    <div class="section-header">
+      <span class="section-title">🚨 Real-Time Security Alerts</span>
+      <button onclick="clearAlerts()" style="background: none; border: none; color: #64748b; font-size: 11px; font-weight: 600; cursor: pointer;">Clear List</button>
+    </div>
+
+    <div class="alert-list" id="alert-list">
+      <!-- Loading Placeholder -->
+      <div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 30px;">
+        Listening for live alerts from Kid's Windows PC...
+      </div>
+    </div>
+
+    <!-- Android Bottom Nav -->
+    <div class="android-nav-bar">
+      <div class="nav-btn active">
+        <span style="font-size: 16px;">🛡️</span>
+        <span>Alerts</span>
+      </div>
+      <div class="nav-btn" onclick="simulateTestAlert()">
+        <span style="font-size: 16px;">⚡</span>
+        <span>Test Alert</span>
+      </div>
+      <div class="nav-btn" onclick="window.location.reload()">
+        <span style="font-size: 16px;">🔄</span>
+        <span>Sync</span>
+      </div>
+      <a href="/" class="nav-btn" style="text-decoration: none;">
+        <span style="font-size: 16px;">🌐</span>
+        <span>Website</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const PARENT_TOPIC = "cyber_protocol_parent_alerts_7575";
+
+    // Update Top Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('android-clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    let alerts = [];
+
+    function renderAlerts() {
+      const container = document.getElementById('alert-list');
+      if (!container) return;
+
+      if (alerts.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.05);">
+            <div style="font-size: 28px; margin-bottom: 8px;">🛡️</div>
+            <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">All Clear on Kid's PC</div>
+            <div>No vulgar content or proxy bypasses detected today.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      alerts.forEach(item => {
+        const isVulgar = item.title.includes('Vulgar') || item.title.includes('🚨') || item.tags?.includes('rotating_light');
+        const cardClass = isVulgar ? 'danger' : 'warning';
+        const badgeClass = isVulgar ? 'badge-danger' : 'badge-warning';
+        const badgeText = isVulgar ? 'VULGAR CONTENT INTERCEPTED' : 'WARNING / SUSPICIOUS BYPASS';
+
+        const card = document.createElement('div');
+        card.className = `alert-card ${cardClass}`;
+        card.innerHTML = `
+          <div class="alert-top">
+            <span class="alert-badge ${badgeClass}">${badgeText}</span>
+            <span class="alert-time">${item.timeStr || 'Recent'}</span>
+          </div>
+          <div class="alert-query">${item.title}</div>
+          <div class="alert-detail">${item.message}</div>
+          <div class="alert-footer">
+            <span>✓ Action: Page Terminated / Screen Blocked</span>
+            <span>0ms Intercept</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function fetchParentAlerts() {
+      try {
+        const res = await fetch(`https://ntfy.sh/${PARENT_TOPIC}/json?poll=1`);
+        if (res.ok) {
+          const text = await res.text();
+          const lines = text.trim().split('\n');
+          const parsed = [];
+          for (const line of lines) {
+            try {
+              const msgObj = JSON.parse(line);
+              if (msgObj && (msgObj.message || msgObj.title)) {
+                parsed.unshift({
+                  title: msgObj.title || '🚨 Security Event',
+                  message: msgObj.message || '',
+                  tags: msgObj.tags || [],
+                  timeStr: new Date(msgObj.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+              }
+            } catch (e) {}
+          }
+          alerts = parsed;
+          renderAlerts();
+        }
+      } catch (e) {}
+    }
+
+    // Connect Real-Time SSE Push Stream
+    function initLiveSSE() {
+      try {
+        const sse = new EventSource(`https://ntfy.sh/${PARENT_TOPIC}/sse`);
+        sse.onmessage = function(event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (data && (data.message || data.title)) {
+              alerts.unshift({
+                title: data.title || '🚨 Security Event',
+                message: data.message || '',
+                tags: data.tags || [],
+                timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              });
+              renderAlerts();
+
+              // Trigger browser vibration if supported on phone
+              if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            }
+          } catch (err) {}
+        };
+      } catch (e) {}
+    }
+
+    function clearAlerts() {
+      if (confirm('Clear alert feed?')) {
+        alerts = [];
+        renderAlerts();
+      }
+    }
+
+    function simulateTestAlert() {
+      fetch(`https://ntfy.sh/${PARENT_TOPIC}/publish`, {
+        method: 'POST',
+        headers: {
+          'Title': '🚨 Vulgar Content Intercepted on Kid PC',
+          'Priority': 'urgent',
+          'Tags': 'rotating_light,no_entry'
+        },
+        body: 'Kid typed: "free explicit hot streaming videos". AI Transformer calculated Safe Score: 0.12. Page terminated.'
+      });
+    }
+
+    fetchParentAlerts();
+    initLiveSSE();
+    setInterval(fetchParentAlerts, 15000);
+  </script>
+
+</body>
+</html>

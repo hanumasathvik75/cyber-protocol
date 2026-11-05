@@ -160,6 +160,87 @@
     }
   }
 
+  // -------------------------------------------------------------
+  // REAL-TIME ENTER KEY & FORM SUBMISSION INTERCEPTION
+  // -------------------------------------------------------------
+  function evaluateTypedText(text, eventToCancel) {
+    if (!text || text.length < 3) return;
+    const lower = text.toLowerCase().trim();
+
+    // 1. Fast Rule Check for Critical Explicit Intent
+    for (const phrase of CRITICAL_EXPLICIT_PHRASES) {
+      if (lower.includes(phrase)) {
+        if (eventToCancel) {
+          eventToCancel.preventDefault();
+          eventToCancel.stopPropagation();
+        }
+        try { window.stop(); } catch (e) {}
+        window.location.replace(chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(text)}&vulgar=true`));
+        return;
+      }
+    }
+
+    // 2. Fast Rule Check for Fishy/Bypass Warning
+    for (const phrase of FISHY_BORDERLINE_PHRASES) {
+      if (lower.includes(phrase)) {
+        show10SecondWarningHUD(text);
+        return;
+      }
+    }
+
+    // 3. Deep AI Transformer Semantic Evaluation via Local Decision Engine
+    fetch('http://localhost:3000/api/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        searchQuery: text, 
+        url: window.location.href, 
+        domain: window.location.hostname 
+      })
+    })
+    .then(res => res.json())
+    .then(assessment => {
+      if (assessment.decision === 'IMMEDIATE_BLOCK') {
+        if (eventToCancel) {
+          try { eventToCancel.preventDefault(); } catch (e) {}
+        }
+        try { window.stop(); } catch (e) {}
+        window.location.replace(chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(text)}&vulgar=true`));
+      } else if (assessment.decision === 'FISHY_WARNING_10S') {
+        show10SecondWarningHUD(text);
+      }
+    })
+    .catch(() => {});
+  }
+
+  // Intercept when user presses "Enter" in search boxes or inputs
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const target = e.target;
+      if (!target) return;
+      const tag = (target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || target.isContentEditable) {
+        const val = (target.value || target.textContent || '').trim();
+        if (val.length >= 3) {
+          evaluateTypedText(val, e);
+        }
+      }
+    }
+  }, true);
+
+  // Intercept form submissions across the web
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!form || typeof form.querySelectorAll !== 'function') return;
+    const inputs = form.querySelectorAll('input[type="text"], input[type="search"], input:not([type]), textarea');
+    for (const input of inputs) {
+      const val = (input.value || '').trim();
+      if (val.length >= 3) {
+        evaluateTypedText(val, e);
+      }
+    }
+  }, true);
+
   // Initial evaluation
   evaluateContext();
 
