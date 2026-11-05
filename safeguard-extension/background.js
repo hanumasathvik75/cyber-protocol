@@ -25,18 +25,80 @@ const BLOCKED_PATTERNS = [
   'heavy-r'
 ];
 
-function triggerAlert(domain, url) {
+// Block searches trying to install VPNs or bypass security
+const RESTRICTED_SEARCH_TERMS = [
+  'free vpn',
+  'vpn',
+  'proxy',
+  'touchvpn',
+  'holavpn',
+  'protonvpn',
+  'nordvpn',
+  'unblock websites',
+  'bypass block',
+  'bypass parental',
+  'disable parental',
+  'how to turn off incognito',
+  'hide ip',
+  'porn',
+  'xhamster',
+  'pornhub',
+  'xvideos'
+];
+
+function checkUrlForBypasses(rawUrl) {
+  if (!rawUrl) return null;
+  const urlLower = rawUrl.toLowerCase();
+
+  // 1. Check Adult Domains
+  for (const pattern of BLOCKED_PATTERNS) {
+    if (urlLower.includes(pattern)) {
+      return { type: 'domain', target: pattern };
+    }
+  }
+
+  // 2. Check Search Engines & Chrome Web Store searches
+  const isSearch = urlLower.includes('google.') || 
+                   urlLower.includes('bing.') || 
+                   urlLower.includes('duckduckgo.') || 
+                   urlLower.includes('yahoo.') ||
+                   urlLower.includes('chromewebstore.google.com') ||
+                   urlLower.includes('chrome.google.com/webstore');
+
+  if (isSearch) {
+    try {
+      const parsed = new URL(rawUrl);
+      const query = (parsed.searchParams.get('q') || 
+                     parsed.searchParams.get('query') || 
+                     parsed.searchParams.get('p') || 
+                     parsed.pathname).toLowerCase();
+
+      // Check if search query contains restricted terms
+      for (const term of RESTRICTED_SEARCH_TERMS) {
+        // Regex word boundary or direct match
+        const regex = new RegExp('(^|\\+|\\s|_|-)' + term.replace(/\s+/g, '[\\s\\+]') + '($|\\+|\\s|_|-)', 'i');
+        if (regex.test(query) || query.includes(term.replace(/\s+/g, '+')) || query.includes(term)) {
+          return { type: 'search', target: term };
+        }
+      }
+    } catch (e) {}
+  }
+
+  return null;
+}
+
+function triggerAlert(target, rawUrl) {
   // 1. Chrome / Windows Notification
   try {
     chrome.notifications.create(`safeguard-${Date.now()}`, {
       type: 'basic',
       iconUrl: 'icons/icon128.png',
-      title: '🚨 SafeGuard Parental Alert',
-      message: `Blocked access to ${domain || url} on this PC.`,
+      title: '🚨 SafeGuard Alert: Restricted Attempt',
+      message: `Blocked search/navigation for: "${target}"`,
       priority: 2
     });
   } catch (e) {
-    console.log('Notification error:', e);
+    console.log('Notification note:', e);
   }
 
   // 2. Dispatch to local Node.js Decision Backend
@@ -44,9 +106,9 @@ function triggerAlert(domain, url) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      domain: domain,
-      url: url,
-      searchQuery: ''
+      domain: target,
+      url: rawUrl,
+      searchQuery: target
     })
   })
     .then(res => res.json())
@@ -54,41 +116,36 @@ function triggerAlert(domain, url) {
     .catch(err => console.log('Backend notification note:', err.message));
 }
 
-// 1. Intercept before navigation happens (WebNavigation API)
+// 1. Deep network interception before navigation starts
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-  if (details.frameId === 0) { // Main frame navigation
-    const url = details.url.toLowerCase();
-    for (const pattern of BLOCKED_PATTERNS) {
-      if (url.includes(pattern)) {
-        console.log(`[SafeGuard] Blocking navigation to: ${url}`);
-        triggerAlert(pattern, url);
-        chrome.tabs.update(details.tabId, {
-          url: chrome.runtime.getURL(`blocked.html?domain=${encodeURIComponent(pattern)}`)
-        });
-        break;
-      }
+  if (details.frameId === 0) { // Main frame
+    const violation = checkUrlForBypasses(details.url);
+    if (violation) {
+      console.log(`[SafeGuard] Intercepting: ${details.url}`);
+      triggerAlert(violation.target, details.url);
+      chrome.tabs.update(details.tabId, {
+        url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(violation.target)}&domain=${encodeURIComponent(violation.target)}`)
+      });
     }
   }
 });
 
-// 2. Fallback tab URL watcher
+// 2. Tab URL watcher (catches instant address bar typing & updates)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  const targetUrl = (changeInfo.url || tab.url || '').toLowerCase();
+  const targetUrl = changeInfo.url || tab.url || '';
   if (targetUrl && !targetUrl.includes(chrome.runtime.id)) {
-    for (const pattern of BLOCKED_PATTERNS) {
-      if (targetUrl.includes(pattern)) {
-        console.log(`[SafeGuard] Tab watcher triggered for: ${targetUrl}`);
-        triggerAlert(pattern, targetUrl);
-        chrome.tabs.update(tabId, {
-          url: chrome.runtime.getURL(`blocked.html?domain=${encodeURIComponent(pattern)}`)
-        });
-        break;
-      }
+    const violation = checkUrlForBypasses(targetUrl);
+    if (violation) {
+      console.log(`[SafeGuard] Tab watcher intercepting: ${targetUrl}`);
+      triggerAlert(violation.target, targetUrl);
+      chrome.tabs.update(tabId, {
+        url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(violation.target)}&domain=${encodeURIComponent(violation.target)}`)
+      });
     }
   }
 });
 
-// 3. Listen for direct messages from blocked.html or content scripts
+// 3. Listen for direct messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'NOTIFY_BLOCK') {
     triggerAlert(message.domain, message.url);
@@ -97,4 +154,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-console.log('🛡️ SafeGuard AI Service Worker is active and monitoring.');
+console.log('🛡️ SafeGuard AI Service Worker is active and monitoring all traffic.');
