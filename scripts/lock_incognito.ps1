@@ -29,9 +29,9 @@ try {
     Set-ItemProperty -Path $chromePath -Name "IncognitoModeAvailability" -Value 1 -Type DWord -Force
     Write-Host "[+] SUCCESS: Incognito Mode has been PERMANENTLY DISABLED." -ForegroundColor Green
 
-    # Policy 2: Enforce Strict Google SafeSearch
-    Set-ItemProperty -Path $chromePath -Name "ForceGoogleSafeSearch" -Value 1 -Type DWord -Force
-    Write-Host "[+] SUCCESS: Google SafeSearch is strictly ENFORCED." -ForegroundColor Green
+    # Policy 2: Allow Transformer AI Full Control (Remove generic browser SafeSearch)
+    Remove-ItemProperty -Path $chromePath -Name "ForceGoogleSafeSearch" -ErrorAction SilentlyContinue
+    Write-Host "[+] SUCCESS: AI Transformer Engine is set as the Primary Safety Authority." -ForegroundColor Green
 
     # Policy 3: Enforce YouTube Strict Safety Mode
     Set-ItemProperty -Path $chromePath -Name "ForceYouTubeSafetyMode" -Value 2 -Type DWord -Force

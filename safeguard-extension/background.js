@@ -1,4 +1,5 @@
 // SafeGuard AI Background Service Worker (MV3)
+// Real-Time Transformer Intent Interception & Deep Defense
 
 const BACKEND_URL = 'http://localhost:3000/api/evaluate';
 
@@ -27,6 +28,17 @@ const CRITICAL_EXPLICIT_PHRASES = [
   'youporn'
 ];
 
+function extractSearchQuery(urlStr) {
+  try {
+    const decoded = decodeURIComponent(urlStr);
+    const m = decoded.match(/[?&;](?:p|q|query|k|wd|search_query)=([^&;?#]+)/i);
+    if (m && m[1]) {
+      return m[1].replace(/\+/g, ' ').trim();
+    }
+  } catch (e) {}
+  return null;
+}
+
 function triggerNotification(title, message, priority = 2) {
   try {
     chrome.notifications.create(`safeguard-${Date.now()}`, {
@@ -37,29 +49,49 @@ function triggerNotification(title, message, priority = 2) {
       priority: priority
     });
   } catch (e) {}
-
-  fetch(BACKEND_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      domain: message,
-      searchQuery: message
-    })
-  }).catch(() => {});
 }
 
-// Intercept critical explicit intent before network request
-chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-  if (details.frameId === 0) { // Top-level
-    const url = details.url.toLowerCase();
-    for (const phrase of CRITICAL_EXPLICIT_PHRASES) {
-      if (url.includes(phrase.replace(/\s+/g, '+')) || url.includes(phrase)) {
-        triggerNotification('🚨 AI Kill-Switch Triggered', `Terminated explicit request: "${phrase}"`);
+// Intercept navigations before network requests go out
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  if (details.frameId !== 0) return; // Top-level frames only
+  const url = (details.url || '').toLowerCase();
+
+  // 1. Instant check for known explicit adult domains and critical phrases
+  for (const phrase of CRITICAL_EXPLICIT_PHRASES) {
+    if (url.includes(phrase.replace(/\s+/g, '+')) || url.includes(phrase)) {
+      triggerNotification('🚨 Cyber-Protocol: Immediate Block', `Terminated explicit request: "${phrase}"`);
+      chrome.tabs.update(details.tabId, {
+        url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(phrase)}&vulgar=true`)
+      });
+      return;
+    }
+  }
+
+  // 2. Extract search engine queries (Google, Yahoo, Bing, DuckDuckGo, YouTube, etc.)
+  const query = extractSearchQuery(details.url);
+  if (query && query.length >= 3) {
+    try {
+      const res = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          searchQuery: query,
+          url: details.url,
+          domain: new URL(details.url).hostname
+        })
+      });
+      const assessment = await res.json();
+
+      if (assessment.decision === 'IMMEDIATE_BLOCK') {
+        triggerNotification('🚨 Cyber-Protocol: Vulgar Content Intercepted', `Terminated: "${query}"`);
         chrome.tabs.update(details.tabId, {
-          url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(phrase)}&domain=${encodeURIComponent(phrase)}`)
+          url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(query)}&vulgar=true`)
         });
-        break;
+      } else if (assessment.decision === 'FISHY_WARNING_10S') {
+        triggerNotification('⚠️ Cyber-Protocol: Warning Flagged', `AI Warning active for search: "${query}"`);
       }
+    } catch (e) {
+      // Local server offline or initializing
     }
   }
 });
@@ -76,4 +108,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-console.log('🛡️ Cyber-Protocol: Autonomous Decision Engine is active.');
+console.log('🛡️ Cyber-Protocol: Deep Defense Autonomous Worker active.');

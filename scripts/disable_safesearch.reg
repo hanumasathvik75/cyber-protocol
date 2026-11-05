@@ -1,0 +1,11 @@
+Windows Registry Editor Version 5.00
+
+; SafeGuard AI / Cyber-Protocol - Disable Browser SafeSearch Policies
+; Allows Cyber-Protocol's On-Device Transformer to be the primary filtering authority
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]
+"ForceGoogleSafeSearch"=-
+"ForceYouTubeSafetyMode"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"ForceGoogleSafeSearch"=-

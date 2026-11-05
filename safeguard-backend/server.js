@@ -128,18 +128,22 @@ async function autonomousDecisionAgent(payload) {
 
       console.log(`[AI Transformer] Query: "${query}" | Adult Sim: ${(adultSim * 100).toFixed(1)}% | VPN Sim: ${(vpnSim * 100).toFixed(1)}%`);
 
-      if (adultSim >= 0.58) {
+      // Check explicit modifier tokens (e.g. dirty, unfiltered, uncensored, nsfw, 18+)
+      const explicitModifiers = ['dirty', 'unfiltered', 'uncensored', 'nsfw', '18+', 'erotic', 'naked', 'nude', 'strip', 'lewd', 'xxx', 'horny', 'sensual'];
+      const hasModifier = explicitModifiers.some(mod => query.includes(mod));
+
+      if (adultSim >= 0.45 || (hasModifier && adultSim >= 0.35)) {
         return {
           decision: 'IMMEDIATE_BLOCK',
           riskScore: parseFloat(adultSim.toFixed(2)),
           confidence: 'HIGH',
-          category: 'AI Transformer: Explicit Adult Intent',
+          category: 'AI Transformer: Vulgar / Explicit Adult Intent',
           matchedRule: `Semantic Similarity: ${(adultSim * 100).toFixed(1)}%`,
-          reason: `On-Device Transformer detected explicit adult semantic intent`
+          reason: `On-Device Transformer detected vulgar/adult semantic intent`
         };
       }
 
-      if (vpnSim >= 0.60) {
+      if (vpnSim >= 0.48) {
         return {
           decision: 'FISHY_WARNING_10S',
           riskScore: parseFloat(vpnSim.toFixed(2)),
