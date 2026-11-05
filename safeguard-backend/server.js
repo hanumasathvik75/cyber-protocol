@@ -5,45 +5,6 @@ const path = require('path');
 const PORT = 3000;
 const TOAST_SCRIPT = path.join(__dirname, 'toast.ps1');
 
-// Comprehensive adult networks list (Tier 0 denylist)
-const BLOCKED_DOMAINS = [
-  'xhamster',
-  'pornhub',
-  'xvideos',
-  'xnxx',
-  'redtube',
-  'youporn',
-  'chaturbate',
-  'onlyfans',
-  'spankbang',
-  'tube8',
-  'stripchat',
-  'livejasmin',
-  'cam4',
-  'beeg',
-  'hqporner',
-  'eporner',
-  'motherless',
-  'daftsex',
-  'brazzers',
-  'heavy-r'
-];
-
-// Suspicious / Bypass search terms
-const BYPASS_TERMS = [
-  'how to bypass parental controls',
-  'disable parental control',
-  'remove parental controls',
-  'disable chrome extension',
-  'how to open incognito',
-  'free vpn chrome',
-  'bypass school block',
-  'unblock adult sites',
-  'xhamster',
-  'pornhub',
-  'porn'
-];
-
 // Send Windows Desktop Notification
 function sendWindowsToast(title, message) {
   const safeTitle = title.replace(/"/g, '`"');
@@ -51,56 +12,98 @@ function sendWindowsToast(title, message) {
   const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${TOAST_SCRIPT}" -Title "${safeTitle}" -Message "${safeMessage}"`;
   
   exec(cmd, (err) => {
-    if (err) {
-      console.error('[-] Error triggering Windows Toast:', err.message);
-    } else {
-      console.log(`[+] Windows Toast dispatched: "${title}" - "${message}"`);
+    if (!err) {
+      console.log(`[+] Windows Toast dispatched: "${title}"`);
     }
   });
 }
 
-// Agent Classification Logic
-function evaluateTraffic(payload) {
+// -------------------------------------------------------------
+// AUTONOMOUS AI DECISION AGENT
+// -------------------------------------------------------------
+function autonomousDecisionAgent(payload) {
+  const query = (payload.searchQuery || '').toLowerCase();
   const url = (payload.url || '').toLowerCase();
   const domain = (payload.domain || '').toLowerCase();
-  const searchQuery = (payload.searchQuery || '').toLowerCase();
+  const fullContext = `${query} ${url} ${domain}`.trim();
 
-  // 1. Check for adult domains
-  for (const blocked of BLOCKED_DOMAINS) {
-    if (url.includes(blocked) || domain.includes(blocked)) {
+  // 1. TIER 3: CRITICAL EXPLICIT INTENT (Score: 0.95 - 1.0)
+  // Sentences kids type when seeking explicit material
+  const criticalPhrases = [
+    'i want nude',
+    'i want hot video',
+    'i want porn',
+    'hot naked',
+    'nude video',
+    'nude photo',
+    'naked girl',
+    'xxx video',
+    'sex video',
+    'sexy video',
+    'free porn',
+    'pornhub',
+    'xhamster',
+    'xvideos',
+    'xnxx',
+    'stripchat',
+    'chaturbate',
+    'onlyfans'
+  ];
+
+  for (const phrase of criticalPhrases) {
+    if (fullContext.includes(phrase)) {
       return {
-        verdict: 'BLOCKED',
-        category: 'Adult Content',
-        threatLevel: 'HIGH',
-        reason: `Restricted adult content detected (${blocked})`,
-        matched: blocked
+        decision: 'IMMEDIATE_BLOCK',
+        riskScore: 0.98,
+        confidence: 'HIGH',
+        category: 'Explicit Sexual Intent',
+        matchedRule: phrase,
+        reason: `AI Agent detected explicit intent: "${phrase}"`
       };
     }
   }
 
-  // 2. Check for bypass searches or keywords
-  for (const term of BYPASS_TERMS) {
-    if (searchQuery.includes(term) || url.includes(encodeURIComponent(term))) {
+  // 2. TIER 2: FISHY / BORDERLINE CONTENT (Score: 0.60 - 0.84)
+  // "Too fishy" - triggers 10-second warning banner and parent notification
+  const fishyPhrases = [
+    'hot girl',
+    'hot video',
+    'sexy photo',
+    'bikini photo',
+    'underwear girl',
+    'girls kissing',
+    'hot dance',
+    'free vpn',
+    'bypass block',
+    'bypass parental',
+    'hide ip',
+    'proxy unblock'
+  ];
+
+  for (const phrase of fishyPhrases) {
+    if (fullContext.includes(phrase)) {
       return {
-        verdict: 'BLOCKED',
-        category: 'Bypass / Sensitive Query',
-        threatLevel: 'MEDIUM',
-        reason: `Bypass attempt or sensitive query detected: "${term}"`,
-        matched: term
+        decision: 'FISHY_WARNING_10S',
+        riskScore: 0.72,
+        confidence: 'MEDIUM',
+        category: 'Fishy / Borderline Material',
+        matchedRule: phrase,
+        reason: `AI Agent flagged suspicious/borderline content: "${phrase}"`
       };
     }
   }
 
+  // 3. TIER 1: BENIGN / SAFE (Score: 0.0 - 0.20)
   return {
-    verdict: 'SAFE',
-    category: 'General Browsing',
-    threatLevel: 'LOW',
+    decision: 'ALLOW',
+    riskScore: 0.05,
+    confidence: 'HIGH',
+    category: 'Educational / Benign',
     reason: 'Content complies with safety policies'
   };
 }
 
 const server = http.createServer((req, res) => {
-  // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -111,31 +114,33 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Health check
   if (req.method === 'GET' && req.url === '/api/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'active', agent: 'Cyber-Protocol Decision Engine v1.1' }));
+    res.end(JSON.stringify({ status: 'active', agent: 'Cyber-Protocol Autonomous Agent v2.0' }));
     return;
   }
 
-  // Evaluation endpoint
   if (req.method === 'POST' && req.url === '/api/evaluate') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       try {
         const payload = JSON.parse(body || '{}');
-        const assessment = evaluateTraffic(payload);
+        const assessment = autonomousDecisionAgent(payload);
 
         const timestamp = new Date().toLocaleTimeString();
-        console.log(`[${timestamp}] Request: ${payload.url || payload.domain || payload.searchQuery || 'unknown'}`);
-        console.log(`           Verdict: ${assessment.verdict} | Category: ${assessment.category}`);
+        console.log(`[${timestamp}] Autonomous Evaluation: "${payload.searchQuery || payload.domain || payload.url}"`);
+        console.log(`           Decision: ${assessment.decision} | Risk Score: ${assessment.riskScore} | Category: ${assessment.category}`);
 
-        if (assessment.verdict === 'BLOCKED') {
-          console.log(`🚨 [ALERT] Triggering Windows desktop toast...`);
+        if (assessment.decision === 'IMMEDIATE_BLOCK') {
           sendWindowsToast(
-            '🚨 Cyber-Protocol Alert',
-            `Blocked access to ${assessment.matched || payload.domain || payload.url} on this PC.`
+            '🚨 Cyber-Protocol: Immediate Kill-Switch',
+            `AI Agent terminated search/page: "${assessment.matchedRule}"`
+          );
+        } else if (assessment.decision === 'FISHY_WARNING_10S') {
+          sendWindowsToast(
+            '⚠️ Cyber-Protocol: Fishy Activity Detected',
+            `AI Agent monitoring borderline content: "${assessment.matchedRule}"`
           );
         }
 
@@ -146,19 +151,19 @@ const server = http.createServer((req, res) => {
         }));
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid JSON payload' }));
+        res.end(JSON.stringify({ error: 'Invalid payload' }));
       }
     });
     return;
   }
 
   res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ error: 'Endpoint not found' }));
+  res.end(JSON.stringify({ error: 'Not found' }));
 });
 
 server.listen(PORT, () => {
   console.log('====================================================');
-  console.log('   🛡️  Cyber-Protocol: Decision Agent Backend Active');
+  console.log('   🛡️  Cyber-Protocol: Autonomous Decision Agent v2.0');
   console.log(`   Listening at: http://localhost:${PORT}`);
   console.log('====================================================');
 });
