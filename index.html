@@ -24,6 +24,10 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+
+  <!-- GoatCounter Privacy-First Analytics (sathvik123.goatcounter.com) -->
+  <script data-goatcounter="https://sathvik123.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
   
   <style>
     :root {
@@ -738,6 +742,17 @@
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
           })
         }).catch(() => {});
+      } catch (e) {}
+
+      // Track Download Event in GoatCounter
+      try {
+        if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+          window.goatcounter.count({
+            path: 'download-setup-zip',
+            title: 'Windows Setup Package Download',
+            event: true
+          });
+        }
       } catch (e) {}
 
       // Track Download Event in Google Analytics / GTM
