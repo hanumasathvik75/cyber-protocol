@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cyber-Protocol | Parent Android Mobile Portal</title>
+  <title>SafeMind | Parent Remote Control App</title>
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/logo.svg">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -12,17 +19,20 @@
     :root {
       --bg: #0b0f19;
       --surface: #131b2e;
-      --surface-variant: #1c263f;
-      --primary: #38bdf8;
-      --on-primary: #00354e;
+      --surface-elevated: #1c263f;
+      --primary: #4f46e5;
+      --primary-glow: #6366f1;
+      --cyan: #38bdf8;
       --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.12);
+      --danger-bg: rgba(239, 68, 68, 0.15);
       --warning: #f59e0b;
-      --warning-bg: rgba(245, 158, 11, 0.12);
+      --warning-bg: rgba(245, 158, 11, 0.15);
       --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --border: rgba(56, 189, 248, 0.15);
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     * {
@@ -42,7 +52,6 @@
       padding: 0;
     }
 
-    /* Mobile Device Frame Container */
     .phone-container {
       width: 100%;
       max-width: 480px;
@@ -56,7 +65,7 @@
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
     }
 
-    /* Android Status Bar */
+    /* Android Top Status Bar */
     .android-status-bar {
       height: 38px;
       padding: 0 20px;
@@ -66,7 +75,7 @@
       font-size: 12px;
       font-weight: 700;
       color: #94a3b8;
-      background: rgba(11, 15, 25, 0.8);
+      background: rgba(11, 15, 25, 0.85);
       backdrop-filter: blur(10px);
       position: sticky;
       top: 0;
@@ -91,61 +100,91 @@
     }
 
     .brand-logo {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
     }
 
     .brand-name {
-      font-size: 16px;
+      font-size: 16.5px;
       font-weight: 800;
       letter-spacing: -0.3px;
     }
 
     .brand-sub {
       font-size: 11px;
-      color: var(--primary);
+      color: var(--cyan);
       font-weight: 600;
     }
 
-    .live-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
+    /* Family Code Banner */
+    .code-pill {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+      font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
       padding: 4px 10px;
-      border-radius: 100px;
-    }
-
-    .pulse {
-      width: 6px;
-      height: 6px;
-      background: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-    }
-
-    /* Device Card */
-    .device-card {
-      margin: 16px 20px 0;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(19, 27, 46, 0.9) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .device-title {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 700;
+      border-radius: 8px;
       letter-spacing: 0.5px;
-      margin-bottom: 4px;
+    }
+
+    /* Pairing Screen (Shown when not paired) */
+    .pair-screen {
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .pair-icon {
+      width: 72px;
+      height: 72px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
+    }
+
+    .pair-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+    }
+
+    /* Device Card & Remote Control Console */
+    .device-console {
+      margin: 16px 20px 0;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(19, 27, 46, 0.95) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .device-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
 
     .device-name {
@@ -157,32 +196,125 @@
       gap: 8px;
     }
 
-    .device-stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 11.5px;
+    .device-online-pill {
+      font-size: 10.5px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 700;
     }
 
-    .stat-item {
+    .remote-switch-row {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 14px 0 12px;
+    }
+
+    .remote-switch-label {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .stat-label {
-      color: #64748b;
-      font-size: 10.5px;
-    }
-
-    .stat-val {
+    .remote-switch-title {
+      font-size: 13.5px;
       font-weight: 700;
-      color: var(--text);
+      color: #fff;
     }
 
-    /* Alert Stream Section */
+    .remote-switch-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* iOS/Android Style Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #10b981;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Remote Quick Action Buttons */
+    .remote-btn-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    /* Alert & Kid Activity Feed */
     .section-header {
       padding: 20px 20px 10px;
       display: flex;
@@ -191,7 +323,7 @@
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -211,7 +343,6 @@
       border-radius: 16px;
       padding: 16px;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: transform 0.2s;
       animation: fadeIn 0.3s ease;
     }
 
@@ -258,12 +389,6 @@
       border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
-    .alert-time {
-      font-size: 11px;
-      color: #64748b;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
     .alert-query {
       font-size: 14.5px;
       font-weight: 700;
@@ -275,60 +400,27 @@
       font-size: 12px;
       color: #94a3b8;
       line-height: 1.4;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .alert-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--success);
-      font-weight: 600;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
-      padding-top: 8px;
-    }
-
-    /* Android Push Notification Banner */
-    .push-banner {
-      margin: 10px 20px;
-      background: rgba(56, 189, 248, 0.06);
-      border: 1px dashed rgba(56, 189, 248, 0.3);
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .push-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .push-desc {
-      font-size: 11px;
-      color: #94a3b8;
-      line-height: 1.4;
-      margin-bottom: 10px;
-    }
-
-    .btn-push {
-      background: var(--primary);
-      color: var(--on-primary);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 12px;
+    .btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
+      border: none;
+      width: 100%;
+      transition: all 0.2s;
     }
 
-    /* Bottom Navigation Bar */
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+    }
+
+    /* Android Bottom Nav */
     .android-nav-bar {
       height: 60px;
       background: var(--surface);
@@ -346,14 +438,13 @@
       align-items: center;
       gap: 3px;
       color: #64748b;
-      text-decoration: none;
       font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
     }
 
     .nav-btn.active {
-      color: var(--primary);
+      color: var(--cyan);
     }
   </style>
 </head>
@@ -366,69 +457,92 @@
       <div style="display: flex; gap: 8px; align-items: center;">
         <span>5G</span>
         <span>📶</span>
-        <span>🔋 98%</span>
+        <span>🔋 99%</span>
       </div>
     </div>
 
     <!-- App Header -->
     <div class="app-header">
       <div class="brand">
-        <img src="/logo.svg" alt="Cyber-Protocol" class="brand-logo">
+        <img src="/logo.svg" alt="SafeMind" class="brand-logo">
         <div>
-          <div class="brand-name">Cyber-Protocol</div>
-          <div class="brand-sub">Parent Security Mobile Portal</div>
+          <div class="brand-name">SafeMind Mobile</div>
+          <div class="brand-sub">Parent Remote Control</div>
         </div>
       </div>
-      <div class="live-pill">
-        <div class="pulse"></div>
-        <span>PROTECTED</span>
-      </div>
+      <div class="code-pill" id="headerCodeBadge">CYBER-7575</div>
     </div>
 
-    <!-- Active Monitored Device -->
-    <div class="device-card">
-      <div class="device-title">MONITORED ENDPOINT</div>
-      <div class="device-name">
-        <span>💻 Kid's Windows 11 PC</span>
-        <span style="font-size: 11px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 100px;">Chrome Enforced</span>
-      </div>
-      <div class="device-stats">
-        <div class="stat-item">
-          <span class="stat-label">AI Engine</span>
-          <span class="stat-val" style="color: #38bdf8;">all-MiniLM-L6-v2</span>
+    <!-- PAIRING SCREEN (Shown if not paired) -->
+    <div id="pairSection" class="pair-screen" style="display: none;">
+      <div class="pair-icon">📱</div>
+      <h2 style="font-size: 22px; font-weight: 800;">Link Kid's Laptop</h2>
+      <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
+        Enter your 6-digit Family Pairing Code from your child's PC setup screen to take full remote control.
+      </p>
+
+      <input type="text" id="familyCodeInput" class="pair-input" value="CYBER-7575" placeholder="CYBER-XXXX">
+
+      <button onclick="saveFamilyCode()" class="btn btn-primary" style="margin-top: 10px;">
+        <span>Link Kid Device →</span>
+      </button>
+
+      <p style="font-size: 11.5px; color: #64748b;">
+        Default Family Code: <strong>CYBER-7575</strong>
+      </p>
+    </div>
+
+    <!-- MAIN REMOTE CONTROL DASHBOARD -->
+    <div id="mainDashboard" style="display: flex; flex-direction: column; flex: 1;">
+      <!-- Monitored Device & Remote Control Card -->
+      <div class="device-console">
+        <div class="device-header">
+          <div class="device-name">
+            <span>💻 Kid's Windows Laptop</span>
+            <span class="device-online-pill">Online</span>
+          </div>
+          <span style="font-size: 11px; color: #34d399; font-weight: 700;">GPO Locked</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Incognito Lock</span>
-          <span class="stat-val" style="color: #10b981;">Permanent GPO</span>
+
+        <p style="font-size: 11.5px; color: #cbd5e1;">
+          Endpoint: <code>Sathvik's PC</code> &bull; Transformer: <code>12ms Local RAM</code>
+        </p>
+
+        <!-- Remote Protection Toggle -->
+        <div class="remote-switch-row">
+          <div class="remote-switch-label">
+            <span class="remote-switch-title" id="protectionStatusTitle">AI Protection: ARMED</span>
+            <span class="remote-switch-sub" id="protectionStatusSub">Blocking 152+ adult sites & vulgar searches</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="remoteProtectionToggle" checked onchange="toggleRemoteProtection(this.checked)">
+            <span class="slider"></span>
+          </label>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Latency</span>
-          <span class="stat-val" style="color: #10b981;">&lt; 15ms</span>
+
+        <!-- Remote Quick Action Buttons -->
+        <div class="remote-btn-deck">
+          <button class="btn-action" onclick="unlockAdmin15M()">
+            <span>⏳ Unlock Admin (15m)</span>
+          </button>
+          <button class="btn-action btn-danger" onclick="emergencyLockBrowser()">
+            <span>🛑 Kill Browser</span>
+          </button>
+        </div>
+
+        <div id="adminWindowTimer" style="display: none; margin-top: 10px; font-size: 11.5px; color: #facc15; font-weight: 700; text-align: center;">
+          ⏳ 15-Minute Admin Window Active on Kid's Laptop
         </div>
       </div>
-    </div>
 
-    <!-- Android Real-Time Push Setup Banner -->
-    <div class="push-banner">
-      <div class="push-title">📱 Receive Push Alerts on Android Phone</div>
-      <div class="push-desc">
-        Install the free <strong>ntfy</strong> app from Google Play Store &bull; Subscribe to topic: <code style="color: #fff;">cyber_protocol_parent_alerts_7575</code>
+      <!-- Live Kid Activity & Alerts Section -->
+      <div class="section-header">
+        <span class="section-title">🚨 Live Kid Activity &amp; Alerts</span>
+        <button onclick="clearAlerts()" style="background: none; border: none; color: #64748b; font-size: 11px; font-weight: 600; cursor: pointer;">Clear</button>
       </div>
-      <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" class="btn-push">
-        <span>Install ntfy for Android &rarr;</span>
-      </a>
-    </div>
 
-    <!-- Live Alert Stream Section -->
-    <div class="section-header">
-      <span class="section-title">🚨 Real-Time Security Alerts</span>
-      <button onclick="clearAlerts()" style="background: none; border: none; color: #64748b; font-size: 11px; font-weight: 600; cursor: pointer;">Clear List</button>
-    </div>
-
-    <div class="alert-list" id="alert-list">
-      <!-- Loading Placeholder -->
-      <div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 30px;">
-        Listening for live alerts from Kid's Windows PC...
+      <div class="alert-list" id="alert-list">
+        <!-- Live Alert Cards Injected Here -->
       </div>
     </div>
 
@@ -436,27 +550,28 @@
     <div class="android-nav-bar">
       <div class="nav-btn active">
         <span style="font-size: 16px;">🛡️</span>
-        <span>Alerts</span>
+        <span>Control</span>
       </div>
-      <div class="nav-btn" onclick="simulateTestAlert()">
+      <div class="nav-btn" onclick="sendTestAlert()">
         <span style="font-size: 16px;">⚡</span>
-        <span>Test Alert</span>
+        <span>Test Siren</span>
       </div>
       <div class="nav-btn" onclick="window.location.reload()">
         <span style="font-size: 16px;">🔄</span>
         <span>Sync</span>
       </div>
-      <a href="/" class="nav-btn" style="text-decoration: none;">
-        <span style="font-size: 16px;">🌐</span>
-        <span>Website</span>
-      </a>
+      <div class="nav-btn" onclick="resetPairing()">
+        <span style="font-size: 16px;">⚙️</span>
+        <span>Pair Code</span>
+      </div>
     </div>
   </div>
 
   <script>
-    const PARENT_TOPIC = "cyber_protocol_parent_alerts_7575";
+    const PARENT_ALERT_TOPIC = "cyber_protocol_parent_alerts_7575";
+    const PARENT_COMMAND_TOPIC = "cyber_protocol_commands_7575";
 
-    // Update Top Clock
+    // Clock
     function updateClock() {
       const now = new Date();
       document.getElementById('android-clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -464,6 +579,99 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    // Family Code Management
+    function checkPairing() {
+      const savedCode = localStorage.getItem('safemind_family_code');
+      if (!savedCode) {
+        document.getElementById('pairSection').style.display = 'flex';
+        document.getElementById('mainDashboard').style.display = 'none';
+      } else {
+        document.getElementById('pairSection').style.display = 'none';
+        document.getElementById('mainDashboard').style.display = 'flex';
+        document.getElementById('headerCodeBadge').textContent = savedCode;
+      }
+    }
+
+    function saveFamilyCode() {
+      const code = (document.getElementById('familyCodeInput').value || '').trim() || 'CYBER-7575';
+      localStorage.setItem('safemind_family_code', code);
+      checkPairing();
+    }
+
+    function resetPairing() {
+      if (confirm('Change Family Pairing Code?')) {
+        localStorage.removeItem('safemind_family_code');
+        checkPairing();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // REMOTE CONTROL COMMAND DISPATCH (Sends to Kid's Laptop)
+    // -------------------------------------------------------------
+    async function sendRemoteCommand(action, payload = {}) {
+      try {
+        await fetch(`https://ntfy.sh/${PARENT_COMMAND_TOPIC}/publish`, {
+          method: 'POST',
+          headers: {
+            'Title': 'SafeMind Command',
+            'Tags': 'gear'
+          },
+          body: JSON.stringify({ action, ...payload, timestamp: Date.now() })
+        });
+      } catch (e) {
+        console.warn('Command dispatch error:', e);
+      }
+    }
+
+    function toggleRemoteProtection(isChecked) {
+      const title = document.getElementById('protectionStatusTitle');
+      const sub = document.getElementById('protectionStatusSub');
+
+      if (isChecked) {
+        title.textContent = 'AI Protection: ARMED';
+        title.style.color = '#34d399';
+        sub.textContent = 'Blocking 152+ adult sites & vulgar searches';
+        sendRemoteCommand('ENABLE_PROTECTION');
+        if (navigator.vibrate) navigator.vibrate(100);
+      } else {
+        title.textContent = 'AI Protection: PAUSED (BY PARENT)';
+        title.style.color = '#f59e0b';
+        sub.textContent = 'Kid laptop filtering is temporarily paused';
+        sendRemoteCommand('DISABLE_PROTECTION');
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      }
+    }
+
+    function unlockAdmin15M() {
+      if (confirm('Unlock extension management on Kid PC for 15 minutes?')) {
+        sendRemoteCommand('UNLOCK_EXTENSIONS_15M');
+        document.getElementById('adminWindowTimer').style.display = 'block';
+        alert('⏳ Extension management unlocked on Kid Laptop for 15 minutes.');
+      }
+    }
+
+    function emergencyLockBrowser() {
+      if (confirm('Remotely terminate and lock Chrome on Kid Laptop right now?')) {
+        sendRemoteCommand('EMERGENCY_LOCK');
+        alert('🛑 Emergency shutdown signal sent to Kid Laptop.');
+      }
+    }
+
+    function sendTestAlert() {
+      fetch(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/publish`, {
+        method: 'POST',
+        headers: {
+          'Title': '🚨 Vulgar Content Intercepted on Kid Laptop',
+          'Priority': 'urgent',
+          'Tags': 'rotating_light,no_entry'
+        },
+        body: 'Kid typed: "show me dirty unfiltered streaming clip". AI Transformer Score: 0.47. Action: Page terminated.'
+      });
+    }
+
+    // -------------------------------------------------------------
+    // LIVE ACTIVITY & ALERTS STREAM
+    // -------------------------------------------------------------
     let alerts = [];
 
     function renderAlerts() {
@@ -472,10 +680,10 @@
 
       if (alerts.length === 0) {
         container.innerHTML = `
-          <div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.05);">
+          <div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.06);">
             <div style="font-size: 28px; margin-bottom: 8px;">🛡️</div>
-            <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">All Clear on Kid's PC</div>
-            <div>No vulgar content or proxy bypasses detected today.</div>
+            <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Kid's PC Protected</div>
+            <div>All searches comply with safety policy. Live stream active.</div>
           </div>
         `;
         return;
@@ -486,42 +694,41 @@
         const isVulgar = item.title.includes('Vulgar') || item.title.includes('🚨') || item.tags?.includes('rotating_light');
         const cardClass = isVulgar ? 'danger' : 'warning';
         const badgeClass = isVulgar ? 'badge-danger' : 'badge-warning';
-        const badgeText = isVulgar ? 'VULGAR CONTENT INTERCEPTED' : 'WARNING / SUSPICIOUS BYPASS';
+        const badgeText = isVulgar ? 'VULGAR SEARCH INTERCEPTED' : 'WARNING / BYPASS ATTEMPT';
 
         const card = document.createElement('div');
         card.className = `alert-card ${cardClass}`;
         card.innerHTML = `
           <div class="alert-top">
             <span class="alert-badge ${badgeClass}">${badgeText}</span>
-            <span class="alert-time">${item.timeStr || 'Recent'}</span>
+            <span style="font-size: 11px; color: #64748b; font-family: monospace;">${item.timeStr || 'Recent'}</span>
           </div>
           <div class="alert-query">${item.title}</div>
           <div class="alert-detail">${item.message}</div>
-          <div class="alert-footer">
-            <span>✓ Action: Page Terminated / Screen Blocked</span>
-            <span>0ms Intercept</span>
+          <div style="font-size: 11px; color: #34d399; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px;">
+            <span>✓ Action: Page Terminated / Screen Locked</span>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    async function fetchParentAlerts() {
+    async function fetchAlerts() {
       try {
-        const res = await fetch(`https://ntfy.sh/${PARENT_TOPIC}/json?poll=1`);
+        const res = await fetch(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/json?poll=1`);
         if (res.ok) {
           const text = await res.text();
           const lines = text.trim().split('\n');
           const parsed = [];
           for (const line of lines) {
             try {
-              const msgObj = JSON.parse(line);
-              if (msgObj && (msgObj.message || msgObj.title)) {
+              const msg = JSON.parse(line);
+              if (msg && (msg.message || msg.title)) {
                 parsed.unshift({
-                  title: msgObj.title || '🚨 Security Event',
-                  message: msgObj.message || '',
-                  tags: msgObj.tags || [],
-                  timeStr: new Date(msgObj.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  title: msg.title || '🚨 Security Event',
+                  message: msg.message || '',
+                  tags: msg.tags || [],
+                  timeStr: new Date(msg.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 });
               }
             } catch (e) {}
@@ -532,10 +739,9 @@
       } catch (e) {}
     }
 
-    // Connect Real-Time SSE Push Stream
-    function initLiveSSE() {
+    function initSSE() {
       try {
-        const sse = new EventSource(`https://ntfy.sh/${PARENT_TOPIC}/sse`);
+        const sse = new EventSource(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/sse`);
         sse.onmessage = function(event) {
           try {
             const data = JSON.parse(event.data);
@@ -547,11 +753,9 @@
                 timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               });
               renderAlerts();
-
-              // Trigger browser vibration if supported on phone
               if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             }
-          } catch (err) {}
+          } catch (e) {}
         };
       } catch (e) {}
     }
@@ -563,22 +767,10 @@
       }
     }
 
-    function simulateTestAlert() {
-      fetch(`https://ntfy.sh/${PARENT_TOPIC}/publish`, {
-        method: 'POST',
-        headers: {
-          'Title': '🚨 Vulgar Content Intercepted on Kid PC',
-          'Priority': 'urgent',
-          'Tags': 'rotating_light,no_entry'
-        },
-        body: 'Kid typed: "free explicit hot streaming videos". AI Transformer calculated Safe Score: 0.12. Page terminated.'
-      });
-    }
-
-    fetchParentAlerts();
-    initLiveSSE();
-    setInterval(fetchParentAlerts, 15000);
+    checkPairing();
+    fetchAlerts();
+    initSSE();
+    setInterval(fetchAlerts, 15000);
   </script>
-
 </body>
 </html>

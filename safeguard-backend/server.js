@@ -1,9 +1,108 @@
 const http = require('http');
+const https = require('https');
 const { exec } = require('child_process');
 const path = require('path');
+const os = require('os');
 
 const PORT = 3000;
 const TOAST_SCRIPT = path.join(__dirname, 'toast.ps1');
+
+// Global State for Remote Parent Phone Control
+let isProtectionActive = true;
+let adminWindowExpiry = 0;
+let recentKidActivity = [];
+const FAMILY_CODE = 'CYBER-7575';
+const DEVICE_NAME = process.env.COMPUTERNAME ? `${process.env.COMPUTERNAME} (Windows 11)` : "Sathvik's Laptop (Windows 11)";
+
+// Connect to Remote Parent Mobile Command Stream (24/7 Bi-directional Sync)
+function connectToParentCommandStream() {
+  const url = 'https://ntfy.sh/cyber_protocol_commands_7575/sse';
+  console.log(`[*] Connecting to Parent Mobile Command Stream: ${url}`);
+  
+  https.get(url, (res) => {
+    console.log('[✓] Connected to Parent Mobile Command Stream!');
+    res.on('data', (chunk) => {
+      const text = chunk.toString();
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.startsWith('data:')) {
+          try {
+            const raw = JSON.parse(line.substring(5).trim());
+            let cmd = raw.message;
+            if (typeof cmd === 'string' && cmd.startsWith('{')) {
+              cmd = JSON.parse(cmd);
+            }
+            if (cmd && cmd.action) {
+              handleRemoteParentCommand(cmd);
+            }
+          } catch (e) {}
+        }
+      }
+    });
+
+    res.on('end', () => {
+      console.warn('[!] Command stream disconnected, reconnecting in 5s...');
+      setTimeout(connectToParentCommandStream, 5000);
+    });
+  }).on('error', (err) => {
+    console.warn('[!] Command stream error, retrying in 5s:', err.message);
+    setTimeout(connectToParentCommandStream, 5000);
+  });
+}
+
+function handleRemoteParentCommand(cmd) {
+  console.log(`[⚡ Remote Command Received from Parent Phone]:`, cmd.action);
+
+  if (cmd.action === 'DISABLE_PROTECTION') {
+    isProtectionActive = false;
+    sendWindowsToast(
+      'SafeMind Parent Notice',
+      'Protection was temporarily PAUSED by Parent Phone.'
+    );
+    notifyParentPortal(
+      'SafeMind Status Update',
+      'Protection was successfully PAUSED from your phone.',
+      'default',
+      'pause'
+    );
+  } else if (cmd.action === 'ENABLE_PROTECTION') {
+    isProtectionActive = true;
+    sendWindowsToast(
+      'SafeMind Parent Notice',
+      'Full On-Device AI Protection was RE-ARMED by Parent Phone.'
+    );
+    notifyParentPortal(
+      'SafeMind Status Update',
+      'Full Protection is now ACTIVE on Kid PC.',
+      'default',
+      'shield'
+    );
+  } else if (cmd.action === 'UNLOCK_EXTENSIONS_15M') {
+    adminWindowExpiry = Date.now() + 15 * 60 * 1000;
+    sendWindowsToast(
+      'SafeMind Admin Notice',
+      'Extension management UNLOCKED for 15 minutes by Parent Phone.'
+    );
+    notifyParentPortal(
+      'SafeMind Admin Window Active',
+      'Extensions management unlocked on Kid PC for 15 minutes.',
+      'default',
+      'timer_clock'
+    );
+  } else if (cmd.action === 'EMERGENCY_LOCK') {
+    sendWindowsToast(
+      '🚨 SafeMind: Emergency Lockdown',
+      'Parent remotely locked the browser from their mobile phone!'
+    );
+    exec('taskkill /F /IM chrome.exe >nul 2>&1');
+    notifyParentPortal(
+      '🚨 Browser Locked Remotely',
+      'Chrome browser on Kid PC was terminated immediately.',
+      'urgent',
+      'lock'
+    );
+  }
+}
 
 // Send Windows Desktop Notification
 function sendWindowsToast(title, message) {
@@ -72,6 +171,17 @@ async function initTransformerEngine() {
 // (Fast Rules + Deep Semantic Transformer Cosine Similarity)
 // -------------------------------------------------------------
 async function autonomousDecisionAgent(payload) {
+  // If parent remotely paused protection from phone:
+  if (!isProtectionActive) {
+    return {
+      decision: 'ALLOW',
+      riskScore: 0.0,
+      confidence: 'HIGH',
+      category: 'Parent Remote Bypass: Protection Temporarily Paused',
+      reason: 'Parent paused filtering from mobile app'
+    };
+  }
+
   const query = (payload.searchQuery || '').toLowerCase();
   const url = (payload.url || '').toLowerCase();
   const domain = (payload.domain || '').toLowerCase();
@@ -228,6 +338,20 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url === '/api/status') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      deviceName: DEVICE_NAME,
+      familyCode: FAMILY_CODE,
+      isProtectionActive: isProtectionActive,
+      adminWindowActive: adminWindowExpiry > Date.now(),
+      adminWindowRemainingSeconds: Math.max(0, Math.round((adminWindowExpiry - Date.now()) / 1000)),
+      recentActivity: recentKidActivity,
+      lastHeartbeat: lastHeartbeatTime
+    }));
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/api/heartbeat') {
     lastHeartbeatTime = Date.now();
     extensionEverConnected = true;
@@ -275,6 +399,16 @@ const server = http.createServer((req, res) => {
           );
         }
 
+        // Record live kid activity for parent mobile portal inspection
+        recentKidActivity.unshift({
+          query: payload.searchQuery || payload.domain || payload.url || 'Web Search',
+          decision: assessment.decision,
+          score: assessment.riskScore,
+          category: assessment.category,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        if (recentKidActivity.length > 25) recentKidActivity.pop();
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           ...assessment,
@@ -298,4 +432,5 @@ server.listen(PORT, async () => {
   console.log(`   Listening at: http://localhost:${PORT}`);
   console.log('====================================================');
   await initTransformerEngine();
+  connectToParentCommandStream();
 });
