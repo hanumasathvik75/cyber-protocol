@@ -3,6 +3,7 @@ const https = require('https');
 const { exec } = require('child_process');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
 
 const PORT = 3000;
 const TOAST_SCRIPT = path.join(__dirname, 'toast.ps1');
@@ -11,16 +12,112 @@ const TOAST_SCRIPT = path.join(__dirname, 'toast.ps1');
 let isProtectionActive = true;
 let adminWindowExpiry = 0;
 let recentKidActivity = [];
-const FAMILY_CODE = 'CYBER-7575';
+const FAMILY_CODE = process.env.FAMILY_CODE || 'CYBER-7575';
+const FAMILY_SALT = '_safemind_secure_salt_v1_';
 const DEVICE_NAME = process.env.COMPUTERNAME ? `${process.env.COMPUTERNAME} (Windows 11)` : "Sathvik's Laptop (Windows 11)";
+
+// Replay Attack Cache (Nonce deduplication)
+const seenNonces = new Set();
+
+// Cryptographically derive private salted topics
+function getPrivateTopic(code, suffix) {
+  return 'sm_' + crypto.createHash('sha256').update(code + FAMILY_SALT + suffix).digest('hex').substring(0, 24);
+}
+
+const PRIVATE_COMMAND_TOPIC = getPrivateTopic(FAMILY_CODE, 'cmd');
+const PRIVATE_ALERT_TOPIC = getPrivateTopic(FAMILY_CODE, 'alert');
+
+// -------------------------------------------------------------
+// CRYPTOGRAPHIC HMAC-SHA256 SIGNATURE VERIFIER
+// -------------------------------------------------------------
+function verifyParentCommand(payload) {
+  if (!payload || typeof payload !== 'object') {
+    return { valid: false, reason: 'Invalid payload structure' };
+  }
+
+  const { action, timestamp, nonce, signature } = payload;
+  if (!action || !timestamp || !nonce || !signature) {
+    return { valid: false, reason: 'Missing required cryptographic fields' };
+  }
+
+  // Anti-Replay: Window of 60 seconds
+  const now = Date.now();
+  if (Math.abs(now - Number(timestamp)) > 60000) {
+    return { valid: false, reason: `Expired timestamp (${Math.abs(now - timestamp)}ms skew)` };
+  }
+
+  // Anti-Replay: Nonce freshness
+  if (seenNonces.has(nonce)) {
+    return { valid: false, reason: 'Duplicate nonce detected (replay attack blocked)' };
+  }
+  seenNonces.add(nonce);
+  if (seenNonces.size > 2000) seenNonces.clear();
+
+  // Compute expected HMAC-SHA256 signature
+  const message = `${action}:${timestamp}:${nonce}`;
+  const expectedSig = crypto.createHmac('sha256', FAMILY_CODE).update(message).digest('hex');
+
+  const sigBuf = Buffer.from(signature, 'hex');
+  const expBuf = Buffer.from(expectedSig, 'hex');
+
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    return { valid: false, reason: 'Cryptographic signature mismatch (unauthorized source)' };
+  }
+
+  return { valid: true };
+}
+
+// -------------------------------------------------------------
+// SECONDARY BROWSER PROCESS SUPERVISOR WATCHDOG
+// -------------------------------------------------------------
+const UNAUTHORIZED_BROWSERS = [
+  'firefox.exe',
+  'brave.exe',
+  'opera.exe',
+  'tor.exe',
+  'vivaldi.exe'
+];
+
+let isWatchdogActive = false;
+function startProcessWatchdog() {
+  if (isWatchdogActive) return;
+  isWatchdogActive = true;
+  console.log('[*] Process Supervisor Watchdog active: Monitoring unauthorized browsers every 3s...');
+
+  setInterval(() => {
+    exec('tasklist /FO CSV /NH', (err, stdout) => {
+      if (err || !stdout) return;
+      const lowerOut = stdout.toLowerCase();
+
+      for (const browser of UNAUTHORIZED_BROWSERS) {
+        if (lowerOut.includes(browser.toLowerCase())) {
+          console.warn(`[🚨 WATCHDOG ALERT] Unauthorized browser detected: ${browser}! Terminating immediately...`);
+          exec(`taskkill /F /IM ${browser} >nul 2>&1`);
+
+          sendWindowsToast(
+            '🚨 SafeMind: Unauthorized Browser Blocked',
+            `Access to ${browser} is restricted by parental policy.`
+          );
+
+          notifyParentPortal(
+            '🚨 Evasion Attempt Blocked on Kid PC',
+            `Kid launched unauthorized browser (${browser}). Process terminated automatically by Process Watchdog.`,
+            'urgent',
+            'no_entry,warning'
+          );
+        }
+      }
+    });
+  }, 3000);
+}
 
 // Connect to Remote Parent Mobile Command Stream (24/7 Bi-directional Sync)
 function connectToParentCommandStream() {
-  const url = 'https://ntfy.sh/cyber_protocol_commands_7575/sse';
-  console.log(`[*] Connecting to Parent Mobile Command Stream: ${url}`);
+  const url = `https://ntfy.sh/${PRIVATE_COMMAND_TOPIC}/sse`;
+  console.log(`[*] Connecting to Private Authenticated Command Stream: ${url}`);
   
   https.get(url, (res) => {
-    console.log('[✓] Connected to Parent Mobile Command Stream!');
+    console.log('[✓] Connected to Private Parent Command Stream!');
     res.on('data', (chunk) => {
       const text = chunk.toString();
       const lines = text.split('\n');
@@ -33,6 +130,12 @@ function connectToParentCommandStream() {
               cmd = JSON.parse(cmd);
             }
             if (cmd && cmd.action) {
+              // Cryptographic authentication gate
+              const verification = verifyParentCommand(cmd);
+              if (!verification.valid) {
+                console.warn(`[⚠️ SECURITY WARNING] Rejected unauthorized parent command: ${verification.reason}`);
+                continue;
+              }
               handleRemoteParentCommand(cmd);
             }
           } catch (e) {}
@@ -121,7 +224,7 @@ function sendWindowsToast(title, message) {
 async function notifyParentPortal(title, message, priority = 'high', tags = 'warning') {
   try {
     const safeTitle = title.replace(/[^\x00-\x7F]/g, '').trim();
-    await fetch('https://ntfy.sh/cyber_protocol_parent_alerts_7575/publish', {
+    await fetch(`https://ntfy.sh/${PRIVATE_ALERT_TOPIC}/publish`, {
       method: 'POST',
       headers: {
         'Title': safeTitle || 'Security Alert',
@@ -130,7 +233,7 @@ async function notifyParentPortal(title, message, priority = 'high', tags = 'war
       },
       body: message
     });
-    console.log(`[+] Parent Android Portal alert dispatched: "${safeTitle}"`);
+    console.log(`[+] Parent Android Portal alert dispatched to ${PRIVATE_ALERT_TOPIC}: "${safeTitle}"`);
   } catch (err) {
     console.warn(`[!] Note on parent portal dispatch:`, err.message);
   }
@@ -430,7 +533,10 @@ server.listen(PORT, async () => {
   console.log('====================================================');
   console.log('   🛡️  Cyber-Protocol: Autonomous Decision Agent v2.5');
   console.log(`   Listening at: http://localhost:${PORT}`);
+  console.log(`   Private Command Topic: ${PRIVATE_COMMAND_TOPIC}`);
+  console.log(`   Private Alert Topic:   ${PRIVATE_ALERT_TOPIC}`);
   console.log('====================================================');
   await initTransformerEngine();
   connectToParentCommandStream();
+  startProcessWatchdog();
 });

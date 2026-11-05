@@ -39,7 +39,16 @@ echo [+] AI Transformer Engine: Set as Primary Safety Authority
 reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v ForceYouTubeSafetyMode /t REG_DWORD /d 2 /f >nul 2>&1
 echo [+] YouTube Restricted Mode: ENFORCED
 
-:: 5. Refresh running browser processes to activate policies immediately
+:: 5. Block Secondary Evasion Browsers via OS Policy (DisallowRun)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v DisallowRun /t REG_DWORD /d 1 /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v 1 /t REG_SZ /d "firefox.exe" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v 2 /t REG_SZ /d "brave.exe" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v 3 /t REG_SZ /d "opera.exe" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v 4 /t REG_SZ /d "tor.exe" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v 5 /t REG_SZ /d "vivaldi.exe" /f >nul 2>&1
+echo [+] Secondary Browsers (Firefox, Brave, Tor, Opera): BLOCKED BY OS
+
+:: 6. Refresh running browser processes to activate policies immediately
 echo.
 echo [*] Refreshing browser instances to apply policies instantly...
 taskkill /F /IM chrome.exe >nul 2>&1

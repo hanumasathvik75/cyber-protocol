@@ -574,8 +574,43 @@
   </div>
 
   <script>
-    const PARENT_ALERT_TOPIC = "cyber_protocol_parent_alerts_7575";
-    const PARENT_COMMAND_TOPIC = "cyber_protocol_commands_7575";
+    const FAMILY_SALT = "_safemind_secure_salt_v1_";
+    let activeAlertSSE = null;
+
+    // Cryptographic Helpers (Web Crypto API)
+    async function sha256Hex(str) {
+      const enc = new TextEncoder();
+      const buf = await crypto.subtle.digest('SHA-256', enc.encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function getPrivateTopic(familyCode, suffix) {
+      const code = (familyCode || 'CYBER-7575').trim();
+      const hash = await sha256Hex(code + FAMILY_SALT + suffix);
+      return 'sm_' + hash.substring(0, 24);
+    }
+
+    // Cryptographic HMAC-SHA256 Command Signing
+    async function signCommandPayload(action, familyCode, extra = {}) {
+      const code = (familyCode || 'CYBER-7575').trim();
+      const timestamp = Date.now();
+      const nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+      const message = `${action}:${timestamp}:${nonce}`;
+
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(code),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+
+      const sigBuffer = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+      const signature = Array.from(new Uint8Array(sigBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      return { action, timestamp, nonce, signature, ...extra };
+    }
 
     // Clock
     function updateClock() {
@@ -595,6 +630,8 @@
         document.getElementById('pairSection').style.display = 'none';
         document.getElementById('mainDashboard').style.display = 'flex';
         document.getElementById('headerCodeBadge').textContent = savedCode;
+        initSSE();
+        fetchAlerts();
       }
     }
 
@@ -612,18 +649,23 @@
     }
 
     // -------------------------------------------------------------
-    // REMOTE CONTROL COMMAND DISPATCH (Sends to Kid's Laptop)
+    // REMOTE CONTROL COMMAND DISPATCH (Sends Cryptographically Signed Payload)
     // -------------------------------------------------------------
     async function sendRemoteCommand(action, payload = {}) {
       try {
-        await fetch(`https://ntfy.sh/${PARENT_COMMAND_TOPIC}/publish`, {
+        const familyCode = localStorage.getItem('safemind_family_code') || 'CYBER-7575';
+        const cmdTopic = await getPrivateTopic(familyCode, 'cmd');
+        const signed = await signCommandPayload(action, familyCode, payload);
+
+        await fetch(`https://ntfy.sh/${cmdTopic}/publish`, {
           method: 'POST',
           headers: {
-            'Title': 'SafeMind Command',
-            'Tags': 'gear'
+            'Title': 'SafeMind Authenticated Command',
+            'Tags': 'shield,key'
           },
-          body: JSON.stringify({ action, ...payload, timestamp: Date.now() })
+          body: JSON.stringify(signed)
         });
+        console.log('[SafeMind Crypto] Dispatched HMAC-signed command:', action);
       } catch (e) {
         console.warn('Command dispatch error:', e);
       }
@@ -663,8 +705,10 @@
       }
     }
 
-    function sendTestAlert() {
-      fetch(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/publish`, {
+    async function sendTestAlert() {
+      const familyCode = localStorage.getItem('safemind_family_code') || 'CYBER-7575';
+      const alertTopic = await getPrivateTopic(familyCode, 'alert');
+      fetch(`https://ntfy.sh/${alertTopic}/publish`, {
         method: 'POST',
         headers: {
           'Title': '🚨 Vulgar Content Intercepted on Kid Laptop',
@@ -721,7 +765,9 @@
 
     async function fetchAlerts() {
       try {
-        const res = await fetch(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/json?poll=1`);
+        const familyCode = localStorage.getItem('safemind_family_code') || 'CYBER-7575';
+        const alertTopic = await getPrivateTopic(familyCode, 'alert');
+        const res = await fetch(`https://ntfy.sh/${alertTopic}/json?poll=1`);
         if (res.ok) {
           const text = await res.text();
           const lines = text.trim().split('\n');
@@ -745,10 +791,16 @@
       } catch (e) {}
     }
 
-    function initSSE() {
+    async function initSSE() {
       try {
-        const sse = new EventSource(`https://ntfy.sh/${PARENT_ALERT_TOPIC}/sse`);
-        sse.onmessage = function(event) {
+        if (activeAlertSSE) {
+          activeAlertSSE.close();
+          activeAlertSSE = null;
+        }
+        const familyCode = localStorage.getItem('safemind_family_code') || 'CYBER-7575';
+        const alertTopic = await getPrivateTopic(familyCode, 'alert');
+        activeAlertSSE = new EventSource(`https://ntfy.sh/${alertTopic}/sse`);
+        activeAlertSSE.onmessage = function(event) {
           try {
             const data = JSON.parse(event.data);
             if (data && (data.message || data.title)) {

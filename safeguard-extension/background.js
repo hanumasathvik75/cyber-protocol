@@ -70,6 +70,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   // 2. Extract search engine queries (Google, Yahoo, Bing, DuckDuckGo, YouTube, etc.)
   const query = extractSearchQuery(details.url);
   if (query && query.length >= 3) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 600);
+
     try {
       const res = await fetch(BACKEND_URL, {
         method: 'POST',
@@ -78,8 +81,10 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
           searchQuery: query,
           url: details.url,
           domain: new URL(details.url).hostname
-        })
+        }),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
       const assessment = await res.json();
 
       if (assessment.decision === 'IMMEDIATE_BLOCK') {
@@ -91,7 +96,14 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
         triggerNotification('⚠️ Cyber-Protocol: Warning Flagged', `AI Warning active for search: "${query}"`);
       }
     } catch (e) {
-      // Local server offline or initializing
+      // 🛡️ Fail-Closed Security: If backend was killed, block evasive searches
+      const lower = query.toLowerCase();
+      const hasEvasionOrVulgar = ['vpn', 'proxy', 'bypass', 'unblock', 'porn', 'sex', 'nude', 'xxx', 'horny'].some(w => lower.includes(w));
+      if (hasEvasionOrVulgar) {
+        chrome.tabs.update(details.tabId, {
+          url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(query)}&vulgar=true`)
+        });
+      }
     }
   }
 });

@@ -237,7 +237,10 @@
         }
       }
 
-      // Evaluate through local on-device Transformer backend (~15ms)
+      // Evaluate through local on-device Transformer backend with Fail-Closed protection
+      const controller = new AbortController();
+      const timeoutTimer = setTimeout(() => controller.abort(), 500);
+
       fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -245,9 +248,14 @@
           searchQuery: text, 
           url: window.location.href, 
           domain: window.location.hostname 
-        })
+        }),
+        signal: controller.signal
       })
-      .then(res => res.json())
+      .then(res => {
+        clearTimeout(timeoutTimer);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
       .then(assessment => {
         if (assessment.decision === 'IMMEDIATE_BLOCK') {
           redirectToBlockedScreen(text);
@@ -270,9 +278,13 @@
           }
         }
       })
-      .catch(() => {
-        // Fallback if local backend is temporarily unreachable
-        if (targetInput && targetInput.form) {
+      .catch((err) => {
+        // 🛡️ FAIL-CLOSED PRINCIPLE:
+        // If backend was killed, tampered with, or timed out, halt any sensitive attempt!
+        console.warn('[SafeMind Security] Backend unreachable (Fail-Closed active):', err.message);
+        if (hasModifier) {
+          redirectToBlockedScreen(text);
+        } else if (targetInput && targetInput.form) {
           targetInput.form.submit();
         }
       });
