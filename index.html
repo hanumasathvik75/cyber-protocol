@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyber-Protocol | Un-bypassable AI Parental Safety</title>
   <meta name="description" content="Enterprise-grade parental control for Chrome and Windows. Permanently disables Incognito, prevents extension deletion, and sends instant bypass alerts.">
+
+  <!-- Google Tag Manager / Analytics (GTM-5QHBVPM9) -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5QHBVPM9');</script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  </script>
+  <!-- End Google Tag Manager -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -502,6 +515,10 @@
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5QHBVPM9"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <div class="container">
     <nav>
@@ -671,6 +688,17 @@
     function openModal() {
       document.getElementById('modalBackdrop').style.display = 'flex';
       document.getElementById('emailInput').focus();
+
+      // Track Trial Modal Open in Google Analytics / GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'open_trial_modal',
+        category: 'Engagement',
+        label: 'Get Started Button'
+      });
+      if (typeof gtag === 'function') {
+        gtag('event', 'trial_modal_opened', { event_category: 'Engagement' });
+      }
     }
 
     function closeModal() {
@@ -695,6 +723,21 @@
       const btn = document.getElementById('downloadBtn');
       btn.textContent = 'Preparing Download...';
       btn.disabled = true;
+
+      // Track Download Event in Google Analytics / GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'download_package_click',
+        category: 'Conversion',
+        label: 'Cyber-Protocol Windows Setup ZIP',
+        email_submitted: true
+      });
+      if (typeof gtag === 'function') {
+        gtag('event', 'download_started', {
+          event_category: 'Conversion',
+          event_label: 'Windows Setup Package'
+        });
+      }
 
       // Trigger real file download of the setup bundle
       const link = document.createElement('a');
