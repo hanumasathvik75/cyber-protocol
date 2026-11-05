@@ -26,8 +26,14 @@ function copyFolder(src, dest) {
   }
 }
 
+// Copy subfolders
 copyFolder(path.join(rootDir, 'safeguard-extension'), path.join(tempDir, 'safeguard-extension'));
 copyFolder(path.join(rootDir, 'scripts'), path.join(tempDir, 'scripts'));
+
+// Copy 1-Click root files directly
+fs.copyFileSync(path.join(rootDir, '1-CLICK_INSTALL_SAFEMIND.bat'), path.join(tempDir, '1-CLICK_INSTALL_SAFEMIND.bat'));
+fs.copyFileSync(path.join(rootDir, 'UNINSTALL_SAFEMIND.bat'), path.join(tempDir, 'UNINSTALL_SAFEMIND.bat'));
+fs.copyFileSync(path.join(rootDir, 'README_INSTRUCTIONS.txt'), path.join(tempDir, 'README_INSTRUCTIONS.txt'));
 
 if (fs.existsSync(zipPath)) {
   fs.unlinkSync(zipPath);
@@ -35,4 +41,4 @@ if (fs.existsSync(zipPath)) {
 
 execSync(`powershell -Command "Compress-Archive -Path '${tempDir}\\*' -DestinationPath '${zipPath}' -Force"`);
 fs.rmSync(tempDir, { recursive: true, force: true });
-console.log('Zip generated successfully:', zipPath);
+console.log('Zip generated successfully with 1-Click root scripts:', zipPath);
