@@ -69,10 +69,10 @@ function verifyParentCommand(payload) {
 
 // -------------------------------------------------------------
 // SECONDARY BROWSER PROCESS SUPERVISOR WATCHDOG
+// (Whitelists Developer Brave Browser; Blocks Tor/Firefox/Opera)
 // -------------------------------------------------------------
 const UNAUTHORIZED_BROWSERS = [
   'firefox.exe',
-  'brave.exe',
   'opera.exe',
   'tor.exe',
   'vivaldi.exe'
