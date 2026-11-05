@@ -725,6 +725,12 @@
       btn.textContent = 'Preparing Download...';
       btn.disabled = true;
 
+      // Record verified download in local storage for telemetry dashboard
+      try {
+        const currentDownloads = parseInt(localStorage.getItem('cyber_protocol_downloads') || '0', 10);
+        localStorage.setItem('cyber_protocol_downloads', (currentDownloads + 1).toString());
+      } catch (err) {}
+
       // Track Download Event in Google Analytics / GTM
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
