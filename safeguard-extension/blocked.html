@@ -22,11 +22,11 @@
     <div class="alert-box">
       <div class="alert-row">
         <span class="label">Blocked Target:</span>
-        <span class="value highlight" id="blocked-target">xhamster.com</span>
+        <span class="value highlight" id="blocked-target">Analyzing request...</span>
       </div>
       <div class="alert-row">
         <span class="label">Classification:</span>
-        <span class="value badge-danger" id="blocked-category">Adult Content (Enforced Policy)</span>
+        <span class="value badge-danger" id="blocked-category">Restricted Content (Enforced Policy)</span>
       </div>
       <div class="alert-row">
         <span class="label">Timestamp:</span>
@@ -34,12 +34,12 @@
       </div>
       <div class="alert-row">
         <span class="label">Status:</span>
-        <span class="value status-text">🚨 Desktop Notification Dispatched to Parent</span>
+        <span class="value status-text" id="blocked-status">🚨 Desktop Notification Dispatched to Parent</span>
       </div>
     </div>
 
     <div class="info-card">
-      <p>This computer is managed under active parental supervision policies. Navigation to adult content, unauthorized downloads, and incognito browsing are permanently restricted.</p>
+      <p>This computer is managed under active parental supervision policies. Navigation to adult content, unauthorized downloads, VPN proxies, and incognito browsing are permanently restricted.</p>
     </div>
 
     <div class="footer">
@@ -47,39 +47,7 @@
     </div>
   </div>
 
-  <script>
-    // Extract domain from query parameters
-    const params = new URLSearchParams(window.location.search);
-    const domain = params.get('domain') || params.get('url') || 'xhamster.com';
-    const query = params.get('query');
-
-    document.getElementById('blocked-target').textContent = query ? `Search: "${query}"` : domain;
-    document.getElementById('blocked-time').textContent = new Date().toLocaleTimeString();
-
-    // Trigger notification through Chrome background service worker
-    try {
-      chrome.runtime.sendMessage({
-        action: 'NOTIFY_BLOCK',
-        domain: domain,
-        query: query,
-        url: window.location.href
-      });
-    } catch (e) {
-      console.log('Extension message error:', e);
-    }
-
-    // Also directly ping local backend agent to ensure Windows Toast fires
-    fetch('http://localhost:3000/api/evaluate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        domain: domain,
-        searchQuery: query || '',
-        url: window.location.href
-      })
-    }).then(res => res.json())
-      .then(data => console.log('SafeGuard Backend Response:', data))
-      .catch(err => console.log('Backend connection note:', err.message));
-  </script>
+  <!-- MV3 CSP Compliant External Script -->
+  <script src="blocked.js"></script>
 </body>
 </html>

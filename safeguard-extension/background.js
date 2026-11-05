@@ -2,7 +2,8 @@
 
 const BACKEND_URL = 'http://localhost:3000/api/evaluate';
 
-const BLOCKED_PATTERNS = [
+// Comprehensive Adult Content & Network Patterns
+const ADULT_PATTERNS = [
   'pornhub',
   'xhamster',
   'xvideos',
@@ -22,11 +23,35 @@ const BLOCKED_PATTERNS = [
   'motherless',
   'daftsex',
   'brazzers',
-  'heavy-r'
+  'heavy-r',
+  'tnaflix',
+  'drtuber',
+  'empflix',
+  'nuvid',
+  'pornmd',
+  'youjizz',
+  'rule34',
+  'gelbooru',
+  'danbooru',
+  'nhentai',
+  'hanime',
+  'luscious',
+  'redgifs',
+  'erome',
+  'fapello',
+  'thothub',
+  'coomer',
+  'kemono',
+  'bdsmlr',
+  'adultfriendfinder',
+  'camwhores',
+  'porntrex',
+  'anyporn',
+  'porn'
 ];
 
-// Block searches trying to install VPNs or bypass security
-const RESTRICTED_SEARCH_TERMS = [
+// Restricted search terms (VPNs, proxies, bypass queries)
+const BYPASS_SEARCH_TERMS = [
   'free vpn',
   'vpn',
   'proxy',
@@ -41,19 +66,26 @@ const RESTRICTED_SEARCH_TERMS = [
   'how to turn off incognito',
   'hide ip',
   'porn',
-  'xhamster',
-  'pornhub',
-  'xvideos'
+  'xxx',
+  'adult video',
+  'nsfw',
+  'nude',
+  'hentai',
+  'sex video'
 ];
 
-function checkUrlForBypasses(rawUrl) {
+function checkUrlForViolations(rawUrl) {
   if (!rawUrl) return null;
   const urlLower = rawUrl.toLowerCase();
 
-  // 1. Check Adult Domains
-  for (const pattern of BLOCKED_PATTERNS) {
+  // 1. Check Adult Domain Patterns
+  for (const pattern of ADULT_PATTERNS) {
     if (urlLower.includes(pattern)) {
-      return { type: 'domain', target: pattern };
+      let matchedHost = pattern;
+      try {
+        matchedHost = new URL(rawUrl).hostname || pattern;
+      } catch (e) {}
+      return { type: 'domain', target: matchedHost, category: 'Adult Content' };
     }
   }
 
@@ -73,12 +105,10 @@ function checkUrlForBypasses(rawUrl) {
                      parsed.searchParams.get('p') || 
                      parsed.pathname).toLowerCase();
 
-      // Check if search query contains restricted terms
-      for (const term of RESTRICTED_SEARCH_TERMS) {
-        // Regex word boundary or direct match
+      for (const term of BYPASS_SEARCH_TERMS) {
         const regex = new RegExp('(^|\\+|\\s|_|-)' + term.replace(/\s+/g, '[\\s\\+]') + '($|\\+|\\s|_|-)', 'i');
         if (regex.test(query) || query.includes(term.replace(/\s+/g, '+')) || query.includes(term)) {
-          return { type: 'search', target: term };
+          return { type: 'search', target: term, category: 'Bypass / Sensitive Search' };
         }
       }
     } catch (e) {}
@@ -87,18 +117,18 @@ function checkUrlForBypasses(rawUrl) {
   return null;
 }
 
-function triggerAlert(target, rawUrl) {
-  // 1. Chrome / Windows Notification
+function triggerAlert(target, category, rawUrl) {
+  // 1. Chrome / Windows Action Center notification
   try {
     chrome.notifications.create(`safeguard-${Date.now()}`, {
       type: 'basic',
       iconUrl: 'icons/icon128.png',
       title: '🚨 SafeGuard Alert: Restricted Attempt',
-      message: `Blocked search/navigation for: "${target}"`,
+      message: `Blocked [${category}]: ${target}`,
       priority: 2
     });
   } catch (e) {
-    console.log('Notification note:', e);
+    console.log('Notification error:', e);
   }
 
   // 2. Dispatch to local Node.js Decision Backend
@@ -108,38 +138,39 @@ function triggerAlert(target, rawUrl) {
     body: JSON.stringify({
       domain: target,
       url: rawUrl,
-      searchQuery: target
+      searchQuery: category.includes('Search') ? target : ''
     })
-  })
-    .then(res => res.json())
-    .then(data => console.log('[SafeGuard Agent Response]', data))
-    .catch(err => console.log('Backend notification note:', err.message));
+  }).catch(() => {});
 }
 
-// 1. Deep network interception before navigation starts
+// 1. WebNavigation API: Catch before network request
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-  if (details.frameId === 0) { // Main frame
-    const violation = checkUrlForBypasses(details.url);
+  if (details.frameId === 0) { // Top-level frame
+    const violation = checkUrlForViolations(details.url);
     if (violation) {
       console.log(`[SafeGuard] Intercepting: ${details.url}`);
-      triggerAlert(violation.target, details.url);
+      triggerAlert(violation.target, violation.category, details.url);
+      
+      const paramName = violation.type === 'search' ? 'query' : 'domain';
       chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(violation.target)}&domain=${encodeURIComponent(violation.target)}`)
+        url: chrome.runtime.getURL(`blocked.html?${paramName}=${encodeURIComponent(violation.target)}`)
       });
     }
   }
 });
 
-// 2. Tab URL watcher (catches instant address bar typing & updates)
+// 2. Tabs API: Catch instant address bar typing & tab updates
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   const targetUrl = changeInfo.url || tab.url || '';
   if (targetUrl && !targetUrl.includes(chrome.runtime.id)) {
-    const violation = checkUrlForBypasses(targetUrl);
+    const violation = checkUrlForViolations(targetUrl);
     if (violation) {
       console.log(`[SafeGuard] Tab watcher intercepting: ${targetUrl}`);
-      triggerAlert(violation.target, targetUrl);
+      triggerAlert(violation.target, violation.category, targetUrl);
+      
+      const paramName = violation.type === 'search' ? 'query' : 'domain';
       chrome.tabs.update(tabId, {
-        url: chrome.runtime.getURL(`blocked.html?query=${encodeURIComponent(violation.target)}&domain=${encodeURIComponent(violation.target)}`)
+        url: chrome.runtime.getURL(`blocked.html?${paramName}=${encodeURIComponent(violation.target)}`)
       });
     }
   }
@@ -148,7 +179,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // 3. Listen for direct messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'NOTIFY_BLOCK') {
-    triggerAlert(message.domain, message.url);
+    triggerAlert(message.domain, 'Restricted Navigation', message.url);
     sendResponse({ status: 'dispatched' });
   }
   return true;
